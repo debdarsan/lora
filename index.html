@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Anxiety Helper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .permission-card {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .permission-card h4 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .permission-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+
+        .permission-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .voice-section {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .mic-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .mic-button:hover {
+            transform: scale(1.05);
+        }
+
+        .mic-button.listening {
+            animation: pulse 1.5s infinite;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(245, 87, 108, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0); }
+        }
+
+        .transcript {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            min-height: 60px;
+            text-align: left;
+        }
+
+        .result-card {
+            background: #f0f4ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .result-card p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .result-card .label {
+            font-weight: 600;
+            color: #333;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .history-item .date {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .history-item .symptom {
+            color: #667eea;
+            font-weight: 600;
+            margin: 5px 0;
+        }
+
+        .clear-history {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .database-table {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .speak-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Anxiety Helper</h1>
+            <p>Voice-Enabled Support & Tracking</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(event, 'voice')">Voice Input</button>
+            <button class="tab" onclick="switchTab(event, 'history')">History</button>
+            <button class="tab" onclick="switchTab(event, 'database')">Database</button>
+        </div>
+
+        <div id="voice" class="tab-content active">
+            <div id="permissionCard" class="permission-card" style="display: none;">
+                <h4>📱 Enable Permissions</h4>
+                <p>This app needs microphone access to hear your symptoms and speaker access to read prevention techniques.</p>
+                <button class="permission-btn" onclick="requestPermissions()">
+                    🎤 Enable Microphone & Speaker
+                </button>
+                <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                    If prompted, please click "Allow" in your browser
+                </p>
+            </div>
+
+            <div class="voice-section">
+                <button class="mic-button" id="micButton" onclick="startRecording()">
+                    <span id="micIcon">🎤</span>
+                </button>
+                <p style="margin-top: 15px; color: #666;" id="status">Checking permissions...</p>
+            </div>
+
+            <div class="transcript" id="transcript">
+                <p style="color: #999;">Your spoken symptoms will appear here...</p>
+            </div>
+
+            <div id="resultSection" style="display: none;">
+                <div class="result-card">
+                    <h3>Analysis Results</h3>
+                    <p><span class="label">Matched Symptom:</span><span id="matchedSymptom"></span></p>
+                    <p><span class="label">NLP Conflict:</span><span id="nlpConflict"></span></p>
+                    <p><span class="label">Prevention Technique:</span></p>
+                    <p id="preventionText" style="background: white; padding: 10px; border-radius: 5px; margin-top: 5px;"></p>
+                </div>
+            </div>
+
+            <div id="statusMessage"></div>
+        </div>
+
+        <div id="history" class="tab-content">
+            <h3 style="margin-bottom: 15px;">Your History</h3>
+            <div id="historyList"></div>
+            <button class="clear-history" onclick="clearHistory()">Clear All History</button>
+        </div>
+
+        <div id="database" class="tab-content">
+            <h3 style="margin-bottom: 15px;">Symptom Database</h3>
+            <div class="database-table">
+                <table id="databaseTable">
+                    <thead>
+                        <tr>
+                            <th>Symptom</th>
+                            <th>Prevention</th>
+                            <th>NLP Conflict</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="databaseBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive anxiety symptom database
+        const anxietyDatabase = [
+            {
+                symptom: "Racing heart or palpitations",
+                prevention: "Practice deep breathing exercises: Inhale for 4 counts, hold for 4, exhale for 6. Repeat 5-10 times. Consider regular cardio exercise to improve heart rate variability.",
+                nlpConflict: "Physical sensations vs. safety beliefs"
+            },
+            {
+                symptom: "Difficulty breathing or shortness of breath",
+                prevention: "Use the 5-4-3-2-1 grounding technique: Name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste. Practice diaphragmatic breathing daily.",
+                nlpConflict: "Control vs. surrender patterns"
+            },
+            {
+                symptom: "Excessive worry about the future",
+                prevention: "Set a 'worry window' - dedicate 15 minutes daily to process worries, then redirect thoughts. Practice mindfulness meditation focusing on present moment awareness.",
+                nlpConflict: "Future projection vs. present reality"
+            },
+            {
+                symptom: "Feeling overwhelmed or out of control",
+                prevention: "Break tasks into smaller steps. Create a priority matrix: urgent/important quadrants. Practice the STOP technique: Stop, Take a breath, Observe, Proceed mindfully.",
+                nlpConflict: "All-or-nothing thinking patterns"
+            },
+            {
+                symptom: "Trouble sleeping or insomnia",
+                prevention: "Establish a wind-down routine 1 hour before bed. No screens, practice progressive muscle relaxation. Keep a worry journal beside your bed to offload thoughts.",
+                nlpConflict: "Active mind vs. rest needs"
+            },
+            {
+                symptom: "Muscle tension or body aches",
+                prevention: "Practice progressive muscle relaxation: Tense and release each muscle group for 5 seconds. Consider yoga or gentle stretching. Take magnesium supplements after consulting a doctor.",
+                nlpConflict: "Holding vs. releasing patterns"
+            },
+            {
+                symptom: "Difficulty concentrating or mind going blank",
+                prevention: "Use the Pomodoro Technique: 25 minutes focus, 5 minute break. Practice single-tasking. Try brain-training exercises or puzzles to improve cognitive flexibility.",
+                nlpConflict: "Mental overload vs. clarity needs"
+            },
+            {
+                symptom: "Irritability or restlessness",
+                prevention: "Engage in physical activity to release tension. Practice self-compassion exercises. Set clear boundaries and communicate needs assertively.",
+                nlpConflict: "Internal pressure vs. external demands"
+            },
+            {
+                symptom: "Avoiding social situations",
+                prevention: "Start with small, manageable social goals. Practice self-compassion. Prepare conversation starters. Use the 3-3-3 rule: name 3 things you see, hear, and can move.",
+                nlpConflict: "Safety vs. connection needs"
+            },
+            {
+                symptom: "Panic attacks or sudden fear",
+                prevention: "Learn to recognize early warning signs. Practice TIPP: Temperature change, Intense exercise, Paced breathing, Paired muscle relaxation. Create a panic attack action plan.",
+                nlpConflict: "Fight-or-flight vs. actual threat"
+            },
+            {
+                symptom: "Constant fatigue or exhaustion",
+                prevention: "Maintain consistent sleep schedule. Limit caffeine intake. Practice energy management: match activities to energy levels. Consider vitamin D and B12 levels check.",
+                nlpConflict: "Hypervigilance vs. rest requirements"
+            },
+            {
+                symptom: "Digestive issues or stomach problems",
+                prevention: "Practice mindful eating. Reduce caffeine and alcohol. Try gut-friendly foods: probiotics, fiber. Consider the gut-brain connection through vagus nerve exercises.",
+                nlpConflict: "Gut feelings vs. mental processing"
+            },
+            {
+                symptom: "Sweating or trembling",
+                prevention: "Keep cooling aids handy. Practice acceptance of physical symptoms. Use positive self-talk. Consider beta-blockers for performance anxiety (consult doctor).",
+                nlpConflict: "Visibility fears vs. authenticity"
+            },
+            {
+                symptom: "Fear of losing control or going crazy",
+                prevention: "Remind yourself: anxiety is uncomfortable but not dangerous. Practice reality testing. Keep a symptom diary to identify patterns. Seek professional support.",
+                nlpConflict: "Catastrophic thinking vs. reality"
+            },
+            {
+                symptom: "Perfectionism or fear of making mistakes",
+                prevention: "Set 'good enough' standards. Practice deliberate imperfection. Celebrate small wins. Use the 80/20 rule: 80% perfect is often sufficient.",
+                nlpConflict: "Ideal self vs. human self"
+            }
+        ];
+
+        let recognition = null;
+        let isRecording = false;
+        let synthesis = window.speechSynthesis;
+        let hasPermissions = false;
+
+        // Check and request permissions
+        async function checkPermissions() {
+            try {
+                // Check if browser supports speech recognition
+                if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+                    showStatus('Your browser does not support speech recognition. Please use Chrome or Edge.', 'error');
+                    document.getElementById('permissionCard').style.display = 'block';
+                    document.getElementById('micButton').disabled = true;
+                    return false;
+                }
+
+                // Try to get microphone permission status
+                if (navigator.permissions && navigator.permissions.query) {
+                    try {
+                        const micPermission = await navigator.permissions.query({ name: 'microphone' });
+                        if (micPermission.state === 'denied') {
+                            showPermissionInstructions();
+                            return false;
+                        }
+                    } catch (e) {
+                        // Some browsers don't support permission query for microphone
+                        console.log('Permission query not supported');
+                    }
+                }
+
+                // Test speech synthesis
+                if (!('speechSynthesis' in window)) {
+                    showStatus('Text-to-speech not supported in your browser', 'error');
+                    return false;
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Permission check error:', error);
+                return false;
+            }
+        }
+
+        function showPermissionInstructions() {
+            document.getElementById('permissionCard').style.display = 'block';
+            document.getElementById('status').textContent = 'Please enable permissions';
+            showStatus('Please enable microphone access to use voice input', 'info');
+        }
+
+        async function requestPermissions() {
+            try {
+                // Request microphone access
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // Stop the stream immediately (we just needed permission)
+                stream.getTracks().forEach(track => track.stop());
+                
+                // Initialize speech recognition
+                initSpeechRecognition();
+                
+                // Hide permission card
+                document.getElementById('permissionCard').style.display = 'none';
+                
+                hasPermissions = true;
+                document.getElementById('status').textContent = 'Click microphone to start';
+                showStatus('Permissions granted! You can now use voice input.', 'success');
+                
+            } catch (error) {
+                console.error('Permission error:', error);
+                if (error.name === 'NotAllowedError') {
+                    showStatus('Microphone access denied. Please enable it in your browser settings.', 'error');
+                    alert('To use voice input:\n1. Click the lock/info icon in your address bar\n2. Allow microphone access\n3. Reload the page');
+                } else if (error.name === 'NotFoundError') {
+                    showStatus('No microphone found. Please connect a microphone.', 'error');
+                } else {
+                    showStatus('Error accessing microphone: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Initialize speech recognition
+        function initSpeechRecognition() {
+            try {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                recognition.maxAlternatives = 1;
+
+                recognition.onstart = function() {
+                    isRecording = true;
+                    document.getElementById('micButton').classList.add('listening');
+                    document.getElementById('micIcon').textContent = '🔴';
+                    document.getElementById('status').textContent = 'Listening... Speak now';
+                    showStatus('Listening... Describe your symptoms', 'info');
+                };
+
+                recognition.onresult = function(event) {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript = transcript;
+                        }
+                    }
+                    
+                    // Show live transcription
+                    if (interimTranscript) {
+                        document.getElementById('transcript').innerHTML = 
+                            `<p><strong>Listening:</strong> ${interimTranscript}</p>`;
+                    }
+                    
+                    if (finalTranscript) {
+                        document.getElementById('transcript').innerHTML = 
+                            `<p><strong>You said:</strong> ${finalTranscript}</p>`;
+                        processSymptoms(finalTranscript);
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    stopRecording();
+                    
+                    if (event.error === 'not-allowed') {
+                        showPermissionInstructions();
+                    } else if (event.error === 'no-speech') {
+                        showStatus('No speech detected. Please try again.', 'error');
+                    } else {
+                        showStatus('Error: ' + event.error, 'error');
+                    }
+                };
+
+                recognition.onend = function() {
+                    stopRecording();
+                };
+
+                hasPermissions = true;
+                document.getElementById('status').textContent = 'Click microphone to start';
+
+            } catch (error) {
+                console.error('Failed to initialize speech recognition:', error);
+                showStatus('Failed to initialize speech recognition', 'error');
+            }
+        }
+
+        async function startRecording() {
+            if (!hasPermissions) {
+                await requestPermissions();
+                return;
+            }
+
+            if (!recognition) {
+                showStatus('Speech recognition not initialized. Please refresh the page.', 'error');
+                return;
+            }
+
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.error('Failed to start recording:', error);
+                    showStatus('Failed to start recording. Please try again.', 'error');
+                }
+            }
+        }
+
+        function stopRecording() {
+            isRecording = false;
+            document.getElementById('micButton').classList.remove('listening');
+            document.getElementById('micIcon').textContent = '🎤';
+            document.getElementById('status').textContent = 'Click microphone to start';
+        }
+
+        // Calculate similarity between two strings
+        function calculateSimilarity(str1, str2) {
+            const words1 = str1.toLowerCase().split(/\s+/);
+            const words2 = str2.toLowerCase().split(/\s+/);
+            
+            let matches = 0;
+            words1.forEach(word1 => {
+                words2.forEach(word2 => {
+                    if (word1.includes(word2) || word2.includes(word1)) {
+                        matches++;
+                    }
+                });
+            });
+            
+            return matches / Math.max(words1.length, words2.length);
+        }
+
+        // Process symptoms and find best match
+        function processSymptoms(userInput) {
+            let bestMatch = null;
+            let bestScore = 0;
+
+            anxietyDatabase.forEach(item => {
+                const score = calculateSimilarity(userInput, item.symptom);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMatch = item;
+                }
+            });
+
+            if (bestMatch && bestScore > 0.2) {
+                displayResult(bestMatch, userInput);
+                saveToHistory(userInput, bestMatch);
+                speakPrevention(bestMatch.prevention);
+            } else {
+                showStatus('No matching symptoms found. Try describing your symptoms differently.', 'error');
+            }
+        }
+
+        // Display results
+        function displayResult(match, userInput) {
+            document.getElementById('resultSection').style.display = 'block';
+            document.getElementById('matchedSymptom').textContent = match.symptom;
+            document.getElementById('nlpConflict').textContent = match.nlpConflict;
+            document.getElementById('preventionText').textContent = match.prevention;
+            
+            showStatus('Match found! Reading prevention technique...', 'success');
+        }
+
+        // Text to speech
+        function speakPrevention(text) {
+            // Cancel any ongoing speech
+            if (synthesis.speaking) {
+                synthesis.cancel();
+            }
+            
+            // Small delay to ensure cancellation completes
+            setTimeout(() => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                utterance.onerror = function(event) {
+                    console.error('Speech synthesis error:', event);
+                    showStatus('Could not read aloud. Check your speaker settings.', 'error');
+                };
+                
+                synthesis.speak(utterance);
+            }, 100);
+        }
+
+        // Save to history
+        function saveToHistory(userInput, match) {
+            let history = JSON.parse(localStorage.getItem('anxietyHistory') || '[]');
+            
+            const entry = {
+                date: new Date().toISOString(),
+                userInput: userInput,
+                matchedSymptom: match.symptom,
+                prevention: match.prevention,
+                nlpConflict: match.nlpConflict
+            };
+            
+            history.unshift(entry);
+            if (history.length > 50) history = history.slice(0, 50);
+            
+            localStorage.setItem('anxietyHistory', JSON.stringify(history));
+            loadHistory();
+        }
+
+        // Load history
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('anxietyHistory') || '[]');
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="color: #999;">No history yet. Start by recording your symptoms.</p>';
+                return;
+            }
+            
+            historyList.innerHTML = history.map(entry => {
+                const date = new Date(entry.date);
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                
+                return `
+                    <div class="history-item">
+                        <div class="date">${dateStr}</div>
+                        <div class="symptom">Your input: ${entry.userInput}</div>
+                        <div class="symptom">Matched: ${entry.matchedSymptom}</div>
+                        <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                            NLP Conflict: ${entry.nlpConflict}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Clear history
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all history?')) {
+                localStorage.removeItem('anxietyHistory');
+                loadHistory();
+                showStatus('History cleared', 'success');
+            }
+        }
+
+        // Load database table
+        function loadDatabase() {
+            const tbody = document.getElementById('databaseBody');
+            tbody.innerHTML = anxietyDatabase.map(item => `
+                <tr>
+                    <td>${item.symptom}</td>
+                    <td>${item.prevention}</td>
+                    <td>${item.nlpConflict}</td>
+                    <td><button class="speak-btn" onclick="speakPrevention('${item.prevention.replace(/'/g, "\\'")}')">🔊 Speak</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // Switch tabs
+        function switchTab(event, tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.className = `status-message ${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initialize app
+        window.onload = async function() {
+            loadHistory();
+            loadDatabase();
+            
+            const canUseSpeech = await checkPermissions();
+            if (canUseSpeech) {
+                // Try to initialize automatically if possible
+                initSpeechRecognition();
+            } else {
+                document.getElementById('permissionCard').style.display = 'block';
+            }
+        };
+    </script>
+</body>
+</html>
