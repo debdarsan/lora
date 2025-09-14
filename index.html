@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Anxiety Helper</title>
+    <title>Anxiety Helper - Semantic Search</title>
+    
+    <!-- TensorFlow.js and Universal Sentence Encoder for semantic search -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder@latest"></script>
+    
     <style>
         * {
             margin: 0;
@@ -86,6 +91,29 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .loading-indicator {
+            text-align: center;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .permission-card {
             background: #fff3cd;
             border: 2px solid #ffc107;
@@ -146,6 +174,11 @@
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
 
+        .mic-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0.7); }
             70% { box-shadow: 0 0 0 20px rgba(245, 87, 108, 0); }
@@ -185,6 +218,20 @@
             color: #333;
             display: inline-block;
             margin-right: 5px;
+        }
+
+        .confidence-meter {
+            margin: 10px 0;
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ffaa00, #44ff44);
+            transition: width 0.5s ease;
         }
 
         .history-item {
@@ -279,13 +326,54 @@
             background: #d1ecf1;
             color: #0c5460;
         }
+
+        .method-selector {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .method-selector label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        .method-selector input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .top-matches {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .match-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+
+        .match-score {
+            float: right;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🧠 Anxiety Helper</h1>
-            <p>Voice-Enabled Support & Tracking</p>
+            <p>Advanced Semantic Search & Support</p>
         </div>
 
         <div class="tabs">
@@ -295,6 +383,12 @@
         </div>
 
         <div id="voice" class="tab-content active">
+            <div id="loadingModel" class="loading-indicator">
+                <div class="loading-spinner"></div>
+                <p>Loading AI model for semantic search...</p>
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">This may take a few seconds on first load</p>
+            </div>
+
             <div id="permissionCard" class="permission-card" style="display: none;">
                 <h4>📱 Enable Permissions</h4>
                 <p>This app needs microphone access to hear your symptoms and speaker access to read prevention techniques.</p>
@@ -306,11 +400,27 @@
                 </p>
             </div>
 
+            <div class="method-selector">
+                <h4>Search Method:</h4>
+                <label>
+                    <input type="radio" name="searchMethod" value="semantic" checked>
+                    Semantic Search (AI-powered, understands meaning)
+                </label>
+                <label>
+                    <input type="radio" name="searchMethod" value="enhanced">
+                    Enhanced Keyword (faster, improved matching)
+                </label>
+                <label>
+                    <input type="radio" name="searchMethod" value="basic">
+                    Basic Keyword (original method)
+                </label>
+            </div>
+
             <div class="voice-section">
-                <button class="mic-button" id="micButton" onclick="startRecording()">
+                <button class="mic-button" id="micButton" onclick="startRecording()" disabled>
                     <span id="micIcon">🎤</span>
                 </button>
-                <p style="margin-top: 15px; color: #666;" id="status">Checking permissions...</p>
+                <p style="margin-top: 15px; color: #666;" id="status">Initializing...</p>
             </div>
 
             <div class="transcript" id="transcript">
@@ -321,9 +431,18 @@
                 <div class="result-card">
                     <h3>Analysis Results</h3>
                     <p><span class="label">Matched Symptom:</span><span id="matchedSymptom"></span></p>
+                    <p><span class="label">Confidence Score:</span><span id="confidenceScore"></span></p>
+                    <div class="confidence-meter">
+                        <div class="confidence-fill" id="confidenceFill"></div>
+                    </div>
                     <p><span class="label">NLP Conflict:</span><span id="nlpConflict"></span></p>
                     <p><span class="label">Prevention Technique:</span></p>
                     <p id="preventionText" style="background: white; padding: 10px; border-radius: 5px; margin-top: 5px;"></p>
+                    
+                    <div class="top-matches" id="topMatches" style="display: none;">
+                        <h4>Other Possible Matches:</h4>
+                        <div id="matchesList"></div>
+                    </div>
                 </div>
             </div>
 
@@ -355,80 +474,95 @@
     </div>
 
     <script>
-        // Comprehensive anxiety symptom database
+        // Comprehensive anxiety symptom database with synonyms
         const anxietyDatabase = [
             {
                 symptom: "Racing heart or palpitations",
+                keywords: ["heart", "racing", "palpitations", "heartbeat", "pulse", "chest", "pounding", "fast heart", "rapid heartbeat", "heart beating fast"],
                 prevention: "Practice deep breathing exercises: Inhale for 4 counts, hold for 4, exhale for 6. Repeat 5-10 times. Consider regular cardio exercise to improve heart rate variability.",
                 nlpConflict: "Physical sensations vs. safety beliefs"
             },
             {
                 symptom: "Difficulty breathing or shortness of breath",
+                keywords: ["breathing", "breath", "air", "suffocating", "can't breathe", "shortness", "gasping", "hyperventilating", "tight chest", "choking"],
                 prevention: "Use the 5-4-3-2-1 grounding technique: Name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste. Practice diaphragmatic breathing daily.",
                 nlpConflict: "Control vs. surrender patterns"
             },
             {
                 symptom: "Excessive worry about the future",
+                keywords: ["worry", "future", "anxious", "concerned", "overthinking", "what if", "scared", "tomorrow", "next week", "upcoming", "will happen"],
                 prevention: "Set a 'worry window' - dedicate 15 minutes daily to process worries, then redirect thoughts. Practice mindfulness meditation focusing on present moment awareness.",
                 nlpConflict: "Future projection vs. present reality"
             },
             {
                 symptom: "Feeling overwhelmed or out of control",
+                keywords: ["overwhelmed", "control", "too much", "can't handle", "stressed", "pressure", "chaos", "losing it", "falling apart", "can't cope"],
                 prevention: "Break tasks into smaller steps. Create a priority matrix: urgent/important quadrants. Practice the STOP technique: Stop, Take a breath, Observe, Proceed mindfully.",
                 nlpConflict: "All-or-nothing thinking patterns"
             },
             {
                 symptom: "Trouble sleeping or insomnia",
+                keywords: ["sleep", "insomnia", "can't sleep", "awake", "tired", "restless", "night", "bed", "tossing turning", "mind racing at night"],
                 prevention: "Establish a wind-down routine 1 hour before bed. No screens, practice progressive muscle relaxation. Keep a worry journal beside your bed to offload thoughts.",
                 nlpConflict: "Active mind vs. rest needs"
             },
             {
                 symptom: "Muscle tension or body aches",
+                keywords: ["tension", "muscle", "tight", "ache", "pain", "stiff", "sore", "shoulders", "neck", "back", "headache", "clenched"],
                 prevention: "Practice progressive muscle relaxation: Tense and release each muscle group for 5 seconds. Consider yoga or gentle stretching. Take magnesium supplements after consulting a doctor.",
                 nlpConflict: "Holding vs. releasing patterns"
             },
             {
                 symptom: "Difficulty concentrating or mind going blank",
+                keywords: ["concentrate", "focus", "blank", "mind", "distracted", "foggy", "can't think", "forget", "confused", "scattered", "attention"],
                 prevention: "Use the Pomodoro Technique: 25 minutes focus, 5 minute break. Practice single-tasking. Try brain-training exercises or puzzles to improve cognitive flexibility.",
                 nlpConflict: "Mental overload vs. clarity needs"
             },
             {
                 symptom: "Irritability or restlessness",
+                keywords: ["irritable", "angry", "restless", "agitated", "annoyed", "frustrated", "on edge", "snappy", "impatient", "fidgety", "can't sit still"],
                 prevention: "Engage in physical activity to release tension. Practice self-compassion exercises. Set clear boundaries and communicate needs assertively.",
                 nlpConflict: "Internal pressure vs. external demands"
             },
             {
                 symptom: "Avoiding social situations",
+                keywords: ["avoiding", "social", "isolation", "alone", "withdraw", "hide", "people", "crowds", "parties", "don't want to go out", "staying home"],
                 prevention: "Start with small, manageable social goals. Practice self-compassion. Prepare conversation starters. Use the 3-3-3 rule: name 3 things you see, hear, and can move.",
                 nlpConflict: "Safety vs. connection needs"
             },
             {
                 symptom: "Panic attacks or sudden fear",
+                keywords: ["panic", "attack", "fear", "terror", "dying", "losing control", "sudden", "intense", "scared", "emergency", "freaking out"],
                 prevention: "Learn to recognize early warning signs. Practice TIPP: Temperature change, Intense exercise, Paced breathing, Paired muscle relaxation. Create a panic attack action plan.",
                 nlpConflict: "Fight-or-flight vs. actual threat"
             },
             {
                 symptom: "Constant fatigue or exhaustion",
+                keywords: ["tired", "fatigue", "exhausted", "no energy", "drained", "worn out", "weak", "sleepy", "lethargic", "burnout", "can't get up"],
                 prevention: "Maintain consistent sleep schedule. Limit caffeine intake. Practice energy management: match activities to energy levels. Consider vitamin D and B12 levels check.",
                 nlpConflict: "Hypervigilance vs. rest requirements"
             },
             {
                 symptom: "Digestive issues or stomach problems",
+                keywords: ["stomach", "digestive", "nausea", "sick", "belly", "gut", "bathroom", "upset stomach", "butterflies", "queasy", "IBS"],
                 prevention: "Practice mindful eating. Reduce caffeine and alcohol. Try gut-friendly foods: probiotics, fiber. Consider the gut-brain connection through vagus nerve exercises.",
                 nlpConflict: "Gut feelings vs. mental processing"
             },
             {
                 symptom: "Sweating or trembling",
+                keywords: ["sweating", "sweat", "trembling", "shaking", "tremor", "hot", "cold", "clammy", "shivering", "quivering", "nervous shake"],
                 prevention: "Keep cooling aids handy. Practice acceptance of physical symptoms. Use positive self-talk. Consider beta-blockers for performance anxiety (consult doctor).",
                 nlpConflict: "Visibility fears vs. authenticity"
             },
             {
                 symptom: "Fear of losing control or going crazy",
+                keywords: ["crazy", "losing mind", "going mad", "insane", "losing it", "breakdown", "snap", "psychotic", "unreal", "disconnected", "not myself"],
                 prevention: "Remind yourself: anxiety is uncomfortable but not dangerous. Practice reality testing. Keep a symptom diary to identify patterns. Seek professional support.",
                 nlpConflict: "Catastrophic thinking vs. reality"
             },
             {
                 symptom: "Perfectionism or fear of making mistakes",
+                keywords: ["perfect", "mistakes", "failure", "wrong", "not good enough", "mess up", "disappoint", "standards", "flawless", "criticism", "judgment"],
                 prevention: "Set 'good enough' standards. Practice deliberate imperfection. Celebrate small wins. Use the 80/20 rule: 80% perfect is often sufficient.",
                 nlpConflict: "Ideal self vs. human self"
             }
@@ -438,6 +572,226 @@
         let isRecording = false;
         let synthesis = window.speechSynthesis;
         let hasPermissions = false;
+        let model = null;
+        let dbEmbeddings = null;
+
+        // Initialize semantic search model
+        async function initializeSemanticModel() {
+            try {
+                showStatus('Loading AI model for semantic search...', 'info');
+                model = await use.load();
+                
+                // Pre-compute embeddings for database symptoms
+                const symptomTexts = anxietyDatabase.map(item => 
+                    item.symptom + ' ' + item.keywords.join(' ')
+                );
+                dbEmbeddings = await model.embed(symptomTexts);
+                
+                document.getElementById('loadingModel').style.display = 'none';
+                document.getElementById('micButton').disabled = false;
+                document.getElementById('status').textContent = 'Model loaded. Click microphone to start';
+                showStatus('AI model loaded successfully!', 'success');
+            } catch (error) {
+                console.error('Failed to load model:', error);
+                document.getElementById('loadingModel').innerHTML = 
+                    '<p style="color: red;">Failed to load AI model. Falling back to keyword search.</p>';
+                document.getElementById('micButton').disabled = false;
+                setTimeout(() => {
+                    document.getElementById('loadingModel').style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Semantic similarity using embeddings
+        async function semanticSearch(userInput) {
+            if (!model || !dbEmbeddings) {
+                return enhancedKeywordSearch(userInput);
+            }
+
+            try {
+                // Get embedding for user input
+                const userEmbedding = await model.embed([userInput]);
+                
+                // Calculate cosine similarity with all database items
+                const similarities = [];
+                const userVector = await userEmbedding.array();
+                const dbVectors = await dbEmbeddings.array();
+                
+                for (let i = 0; i < anxietyDatabase.length; i++) {
+                    const similarity = cosineSimilarity(userVector[0], dbVectors[i]);
+                    similarities.push({
+                        item: anxietyDatabase[i],
+                        score: similarity
+                    });
+                }
+                
+                // Sort by similarity score
+                similarities.sort((a, b) => b.score - a.score);
+                
+                // Clean up tensors
+                userEmbedding.dispose();
+                
+                return similarities;
+            } catch (error) {
+                console.error('Semantic search error:', error);
+                return enhancedKeywordSearch(userInput);
+            }
+        }
+
+        // Calculate cosine similarity between two vectors
+        function cosineSimilarity(a, b) {
+            let dotProduct = 0;
+            let normA = 0;
+            let normB = 0;
+            
+            for (let i = 0; i < a.length; i++) {
+                dotProduct += a[i] * b[i];
+                normA += a[i] * a[i];
+                normB += b[i] * b[i];
+            }
+            
+            return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+        }
+
+        // Enhanced keyword-based search
+        function enhancedKeywordSearch(userInput) {
+            const userWords = userInput.toLowerCase().split(/\s+/);
+            const results = [];
+            
+            anxietyDatabase.forEach(item => {
+                let score = 0;
+                const symptomWords = item.symptom.toLowerCase().split(/\s+/);
+                const allKeywords = item.keywords.map(k => k.toLowerCase());
+                
+                // Check for exact keyword matches
+                userWords.forEach(userWord => {
+                    // Check in symptom
+                    if (symptomWords.some(sw => sw.includes(userWord) || userWord.includes(sw))) {
+                        score += 2;
+                    }
+                    
+                    // Check in keywords
+                    if (allKeywords.some(kw => kw.includes(userWord))) {
+                        score += 3;
+                    }
+                });
+                
+                // Check for phrase matches
+                const userLower = userInput.toLowerCase();
+                item.keywords.forEach(keyword => {
+                    if (userLower.includes(keyword.toLowerCase())) {
+                        score += 5;
+                    }
+                });
+                
+                if (score > 0) {
+                    results.push({
+                        item: item,
+                        score: score / Math.max(userWords.length, symptomWords.length)
+                    });
+                }
+            });
+            
+            results.sort((a, b) => b.score - a.score);
+            return results;
+        }
+
+        // Basic search (original method)
+        function basicSearch(userInput) {
+            const results = [];
+            
+            anxietyDatabase.forEach(item => {
+                const score = calculateSimilarity(userInput, item.symptom);
+                if (score > 0) {
+                    results.push({
+                        item: item,
+                        score: score
+                    });
+                }
+            });
+            
+            results.sort((a, b) => b.score - a.score);
+            return results;
+        }
+
+        // Calculate similarity between two strings (original method)
+        function calculateSimilarity(str1, str2) {
+            const words1 = str1.toLowerCase().split(/\s+/);
+            const words2 = str2.toLowerCase().split(/\s+/);
+            
+            let matches = 0;
+            words1.forEach(word1 => {
+                words2.forEach(word2 => {
+                    if (word1.includes(word2) || word2.includes(word1)) {
+                        matches++;
+                    }
+                });
+            });
+            
+            return matches / Math.max(words1.length, words2.length);
+        }
+
+        // Process symptoms with selected search method
+        async function processSymptoms(userInput) {
+            const searchMethod = document.querySelector('input[name="searchMethod"]:checked').value;
+            let results = [];
+            
+            showStatus(`Processing with ${searchMethod} search...`, 'info');
+            
+            switch(searchMethod) {
+                case 'semantic':
+                    results = await semanticSearch(userInput);
+                    break;
+                case 'enhanced':
+                    results = enhancedKeywordSearch(userInput);
+                    break;
+                case 'basic':
+                    results = basicSearch(userInput);
+                    break;
+            }
+            
+            if (results.length > 0 && results[0].score > 0.1) {
+                displayResult(results[0], userInput, results.slice(1, 4));
+                saveToHistory(userInput, results[0]);
+                speakPrevention(results[0].item.prevention);
+            } else {
+                showStatus('No matching symptoms found. Try describing your symptoms differently.', 'error');
+                document.getElementById('resultSection').style.display = 'none';
+            }
+        }
+
+        // Display results with confidence score
+        function displayResult(match, userInput, otherMatches) {
+            document.getElementById('resultSection').style.display = 'block';
+            document.getElementById('matchedSymptom').textContent = match.item.symptom;
+            
+            // Convert score to percentage
+            const confidence = Math.min(Math.round(match.score * 100), 100);
+            document.getElementById('confidenceScore').textContent = confidence + '%';
+            document.getElementById('confidenceFill').style.width = confidence + '%';
+            
+            document.getElementById('nlpConflict').textContent = match.item.nlpConflict;
+            document.getElementById('preventionText').textContent = match.item.prevention;
+            
+            // Show other possible matches
+            if (otherMatches && otherMatches.length > 0) {
+                document.getElementById('topMatches').style.display = 'block';
+                const matchesList = document.getElementById('matchesList');
+                matchesList.innerHTML = otherMatches.map(m => {
+                    const score = Math.min(Math.round(m.score * 100), 100);
+                    return `
+                        <div class="match-item">
+                            <span>${m.item.symptom}</span>
+                            <span class="match-score">${score}%</span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                document.getElementById('topMatches').style.display = 'none';
+            }
+            
+            showStatus('Match found! Reading prevention technique...', 'success');
+        }
 
         // Check and request permissions
         async function checkPermissions() {
@@ -459,7 +813,6 @@
                             return false;
                         }
                     } catch (e) {
-                        // Some browsers don't support permission query for microphone
                         console.log('Permission query not supported');
                     }
                 }
@@ -615,55 +968,6 @@
             document.getElementById('status').textContent = 'Click microphone to start';
         }
 
-        // Calculate similarity between two strings
-        function calculateSimilarity(str1, str2) {
-            const words1 = str1.toLowerCase().split(/\s+/);
-            const words2 = str2.toLowerCase().split(/\s+/);
-            
-            let matches = 0;
-            words1.forEach(word1 => {
-                words2.forEach(word2 => {
-                    if (word1.includes(word2) || word2.includes(word1)) {
-                        matches++;
-                    }
-                });
-            });
-            
-            return matches / Math.max(words1.length, words2.length);
-        }
-
-        // Process symptoms and find best match
-        function processSymptoms(userInput) {
-            let bestMatch = null;
-            let bestScore = 0;
-
-            anxietyDatabase.forEach(item => {
-                const score = calculateSimilarity(userInput, item.symptom);
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestMatch = item;
-                }
-            });
-
-            if (bestMatch && bestScore > 0.2) {
-                displayResult(bestMatch, userInput);
-                saveToHistory(userInput, bestMatch);
-                speakPrevention(bestMatch.prevention);
-            } else {
-                showStatus('No matching symptoms found. Try describing your symptoms differently.', 'error');
-            }
-        }
-
-        // Display results
-        function displayResult(match, userInput) {
-            document.getElementById('resultSection').style.display = 'block';
-            document.getElementById('matchedSymptom').textContent = match.symptom;
-            document.getElementById('nlpConflict').textContent = match.nlpConflict;
-            document.getElementById('preventionText').textContent = match.prevention;
-            
-            showStatus('Match found! Reading prevention technique...', 'success');
-        }
-
         // Text to speech
         function speakPrevention(text) {
             // Cancel any ongoing speech
@@ -687,16 +991,19 @@
             }, 100);
         }
 
-        // Save to history
+        // Save to history with confidence score
         function saveToHistory(userInput, match) {
             let history = JSON.parse(localStorage.getItem('anxietyHistory') || '[]');
             
+            const confidence = Math.min(Math.round(match.score * 100), 100);
             const entry = {
                 date: new Date().toISOString(),
                 userInput: userInput,
-                matchedSymptom: match.symptom,
-                prevention: match.prevention,
-                nlpConflict: match.nlpConflict
+                matchedSymptom: match.item.symptom,
+                prevention: match.item.prevention,
+                nlpConflict: match.item.nlpConflict,
+                confidence: confidence,
+                searchMethod: document.querySelector('input[name="searchMethod"]:checked').value
             };
             
             history.unshift(entry);
@@ -726,6 +1033,8 @@
                         <div class="symptom">Your input: ${entry.userInput}</div>
                         <div class="symptom">Matched: ${entry.matchedSymptom}</div>
                         <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                            Confidence: ${entry.confidence || 'N/A'}% | 
+                            Method: ${entry.searchMethod || 'basic'} | 
                             NLP Conflict: ${entry.nlpConflict}
                         </div>
                     </div>
@@ -780,6 +1089,9 @@
         window.onload = async function() {
             loadHistory();
             loadDatabase();
+            
+            // Initialize semantic model
+            await initializeSemanticModel();
             
             const canUseSpeech = await checkPermissions();
             if (canUseSpeech) {
