@@ -261,6 +261,7 @@
             color: #333;
             display: inline-block;
             margin-right: 5px;
+            min-width: 150px;
         }
 
         .ai-reasoning {
@@ -271,6 +272,17 @@
             border-left: 3px solid #2196f3;
             font-style: italic;
             color: #555;
+        }
+
+        .match-indicator {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 10px;
+            font-weight: normal;
         }
 
         .confidence-meter {
@@ -285,6 +297,18 @@
             height: 100%;
             background: linear-gradient(90deg, #ff4444, #ffaa00, #44ff44);
             transition: width 0.5s ease;
+        }
+
+        .prevention-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            line-height: 1.8;
+        }
+
+        .prevention-section p {
+            margin: 12px 0;
         }
 
         .history-item {
@@ -408,6 +432,18 @@
             margin-bottom: 10px;
             color: #333;
         }
+
+        .debug-panel {
+            background: #1e1e1e;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -467,6 +503,14 @@
                     <input type="radio" name="searchMethod" value="basic">
                     Basic Keyword (Original method)
                 </label>
+                <div style="margin-top: 10px; padding: 10px; background: #f0f4ff; border-radius: 5px;">
+                    <button onclick="testConsolidation()" style="background: #9c27b0; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
+                        🧪 Test AI Consolidation
+                    </button>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        <em>Test with: "I feel breathless, heart racing, and panicky"</em>
+                    </div>
+                </div>
             </div>
 
             <div class="voice-section">
@@ -482,8 +526,9 @@
 
             <div id="resultSection" style="display: none;">
                 <div class="result-card">
-                    <h3>Analysis Results</h3>
-                    <p><span class="label">Matched Symptom:</span><span id="matchedSymptom"></span></p>
+                    <h3>Analysis Results <span id="matchIndicator" class="match-indicator" style="display: none;">Combined Match</span></h3>
+                    <p><span class="label">Matched Symptom(s):</span></p>
+                    <div id="matchedSymptom" style="margin-left: 20px;"></div>
                     <p><span class="label">Confidence Score:</span><span id="confidenceScore"></span></p>
                     <div class="confidence-meter">
                         <div class="confidence-fill" id="confidenceFill"></div>
@@ -491,13 +536,21 @@
                     <div id="aiReasoning" class="ai-reasoning" style="display: none;">
                         <strong>AI Reasoning:</strong> <span id="reasoningText"></span>
                     </div>
-                    <p><span class="label">NLP Conflict:</span><span id="nlpConflict"></span></p>
-                    <p><span class="label">Prevention Technique:</span></p>
-                    <p id="preventionText" style="background: white; padding: 10px; border-radius: 5px; margin-top: 5px;"></p>
+                    <p><span class="label">NLP Conflict(s):</span></p>
+                    <div id="nlpConflict" style="margin-left: 20px; font-style: italic;"></div>
+                    <p><span class="label">Prevention Technique(s):</span></p>
+                    <div id="preventionText" class="prevention-section"></div>
                 </div>
             </div>
 
             <div id="statusMessage"></div>
+
+            <div id="debugPanel" class="debug-panel" style="display: none;">
+                <div style="color: #fff; margin-bottom: 10px;">
+                    <strong>🐛 DEBUG CONSOLE</strong>
+                </div>
+                <div id="debugContent"></div>
+            </div>
         </div>
 
         <div id="history" class="tab-content">
@@ -526,8 +579,43 @@
         <div id="settings" class="tab-content">
             <h3 style="margin-bottom: 15px;">Settings</h3>
             <div class="settings-section">
+                <h4>Matching Configuration</h4>
+                <p style="margin-bottom: 10px;">
+                    <label for="numMatches">Number of symptoms to match (GPT only):</label>
+                    <select id="numMatches" onchange="saveSettings()" style="padding: 5px; margin-left: 10px;">
+                        <option value="1">1 symptom</option>
+                        <option value="2">2 symptoms</option>
+                        <option value="3" selected>3 symptoms</option>
+                        <option value="4">4 symptoms</option>
+                        <option value="5">5 symptoms</option>
+                    </select>
+                </p>
+                <p style="margin-bottom: 10px;">
+                    <label for="minConfidence">Minimum confidence to include match:</label>
+                    <select id="minConfidence" onchange="saveSettings()" style="padding: 5px; margin-left: 10px;">
+                        <option value="20">20%</option>
+                        <option value="30" selected>30%</option>
+                        <option value="40">40%</option>
+                        <option value="50">50%</option>
+                    </select>
+                </p>
+                <p style="margin-bottom: 10px;">
+                    <label>
+                        <input type="checkbox" id="consolidatePreventions" checked onchange="saveSettings()">
+                        🤖 Use AI to create consolidated, empathetic prevention advice
+                    </label>
+                </p>
+                <div id="consolidationStatus" style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 13px;">
+                    <strong>AI Consolidation:</strong> 
+                    <span id="consolidationText">Enabled - Will create personalized responses for multiple matches</span>
+                </div>
+            </div>
+            <div class="settings-section">
                 <h4>API Configuration</h4>
                 <p>Current API Key: <span id="currentKeyStatus">Not set</span></p>
+                <p id="apiWarning" style="color: #ff6b6b; font-size: 13px; margin-top: 5px; display: none;">
+                    ⚠️ API key required for GPT matching and AI consolidation
+                </p>
                 <button onclick="exportHistory()">Export History</button>
                 <button onclick="importHistory()">Import History</button>
             </div>
@@ -537,7 +625,8 @@
                     • Your API key is stored locally in your browser<br>
                     • Voice data is processed by your browser's speech recognition<br>
                     • OpenAI API calls are made directly from your browser<br>
-                    • No data is stored on any external server
+                    • No data is stored on any external server<br>
+                    • AI consolidation requires GPT mode and multiple matches
                 </p>
             </div>
         </div>
@@ -643,8 +732,151 @@
         let synthesis = window.speechSynthesis;
         let hasPermissions = false;
         let apiKey = '';
+        let settings = {
+            numMatches: 3,
+            minConfidence: 30,
+            consolidatePreventions: true
+        };
 
-        // Load API key from localStorage
+        // NEW FUNCTION: Consolidate preventions using GPT
+        async function consolidatePreventions(matches, userInput) {
+            console.log('=== consolidatePreventions FUNCTION CALLED ===');
+            console.log('Matches:', matches.length);
+            console.log('API Key:', !!apiKey);
+            console.log('Settings consolidate:', settings.consolidatePreventions);
+            
+            if (!apiKey || !settings.consolidatePreventions) {
+                console.log('Skipping consolidation - no key or disabled');
+                return {
+                    text: matches.map(m => m.item.prevention).join(' Alternatively, '),
+                    isConsolidated: false
+                };
+            }
+
+            try {
+                console.log('Making GPT API call for consolidation...');
+                showStatus('🤖 Creating personalized prevention plan with AI...', 'info');
+                
+                const preventions = matches.map((m, i) => 
+                    `Symptom ${i+1}: ${m.item.symptom}\nPrevention: ${m.item.prevention}`
+                ).join('\n\n');
+
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: `You are a compassionate anxiety counselor. Given multiple anxiety symptoms and their prevention techniques, create a single, coherent, empathetic prevention plan that addresses all symptoms holistically. 
+
+Guidelines:
+- Be warm, understanding, and encouraging
+- Start by acknowledging their specific struggle
+- Integrate techniques naturally, avoiding repetition
+- Provide practical steps in a logical order
+- Include both immediate relief techniques and long-term strategies
+- Use "you" to speak directly to the person
+- Be specific and actionable
+- Include gentle reminders about self-compassion
+- DO NOT use bullet points or lists - write in flowing paragraphs
+- Make it feel like personal advice from a caring professional`
+                            },
+                            {
+                                role: 'user',
+                                content: `The person described their symptoms as: "${userInput}"
+
+These match the following symptoms and prevention techniques:
+${preventions}
+
+Please create a consolidated, empathetic prevention plan that addresses all these symptoms together.`
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 600
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ GPT consolidation successful!');
+                    showStatus('✨ AI prevention plan created successfully!', 'success');
+                    return {
+                        text: data.choices[0].message.content,
+                        isConsolidated: true
+                    };
+                } else {
+                    const error = await response.json();
+                    console.error('GPT consolidation failed:', error);
+                    showStatus('AI consolidation failed, using standard format', 'error');
+                    return {
+                        text: matches.map(m => m.item.prevention).join(' Alternatively, '),
+                        isConsolidated: false
+                    };
+                }
+                
+            } catch (error) {
+                console.error('Consolidation error:', error);
+                showStatus('AI consolidation error, using standard format', 'error');
+                return {
+                    text: matches.map(m => m.item.prevention).join(' Alternatively, '),
+                    isConsolidated: false
+                };
+            }
+        }
+
+        // Load settings
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('anxietySettings');
+            if (savedSettings) {
+                settings = JSON.parse(savedSettings);
+            }
+            if (document.getElementById('numMatches')) {
+                document.getElementById('numMatches').value = settings.numMatches || 3;
+            }
+            if (document.getElementById('minConfidence')) {
+                document.getElementById('minConfidence').value = settings.minConfidence || 30;
+            }
+            if (document.getElementById('consolidatePreventions')) {
+                document.getElementById('consolidatePreventions').checked = settings.consolidatePreventions !== false;
+            }
+            updateConsolidationStatus();
+        }
+
+        // Save settings
+        function saveSettings() {
+            settings.numMatches = parseInt(document.getElementById('numMatches').value);
+            settings.minConfidence = parseInt(document.getElementById('minConfidence').value);
+            settings.consolidatePreventions = document.getElementById('consolidatePreventions').checked;
+            localStorage.setItem('anxietySettings', JSON.stringify(settings));
+            updateConsolidationStatus();
+            showStatus('Settings saved', 'success');
+        }
+
+        // Update consolidation status display
+        function updateConsolidationStatus() {
+            const statusDiv = document.getElementById('consolidationStatus');
+            const statusText = document.getElementById('consolidationText');
+            
+            if (!statusDiv || !statusText) return;
+            
+            if (settings.consolidatePreventions && apiKey) {
+                statusDiv.style.background = '#e8f5e9';
+                statusText.innerHTML = '✅ Enabled - Will create personalized responses for multiple matches';
+            } else if (settings.consolidatePreventions && !apiKey) {
+                statusDiv.style.background = '#fff3e0';
+                statusText.innerHTML = '⚠️ Enabled but requires API key - Add key to activate';
+            } else {
+                statusDiv.style.background = '#f5f5f5';
+                statusText.innerHTML = '❌ Disabled - Will use standard concatenation for multiple matches';
+            }
+        }
+
+        // Load API key
         function loadApiKey() {
             const savedKey = localStorage.getItem('openai_api_key');
             if (savedKey) {
@@ -653,7 +885,15 @@
                 document.getElementById('apiStatus').className = 'api-status connected';
                 document.getElementById('apiStatus').textContent = 'Connected';
                 document.getElementById('currentKeyStatus').textContent = maskApiKey(savedKey);
+                if (document.getElementById('apiWarning')) {
+                    document.getElementById('apiWarning').style.display = 'none';
+                }
+            } else {
+                if (document.getElementById('apiWarning')) {
+                    document.getElementById('apiWarning').style.display = 'block';
+                }
             }
+            updateConsolidationStatus();
         }
 
         // Mask API key for display
@@ -671,10 +911,12 @@
                 document.getElementById('apiStatus').className = 'api-status connected';
                 document.getElementById('apiStatus').textContent = 'Connected';
                 document.getElementById('currentKeyStatus').textContent = maskApiKey(keyInput);
+                if (document.getElementById('apiWarning')) {
+                    document.getElementById('apiWarning').style.display = 'none';
+                }
                 showStatus('API key saved successfully!', 'success');
-                
-                // Don't show the actual key after saving
                 document.getElementById('apiKey').value = maskApiKey(keyInput);
+                updateConsolidationStatus();
             } else {
                 showStatus('Please enter a valid OpenAI API key (starts with sk-)', 'error');
             }
@@ -739,7 +981,11 @@
                 document.getElementById('apiStatus').className = 'api-status disconnected';
                 document.getElementById('apiStatus').textContent = 'Not Connected';
                 document.getElementById('currentKeyStatus').textContent = 'Not set';
+                if (document.getElementById('apiWarning')) {
+                    document.getElementById('apiWarning').style.display = 'block';
+                }
                 showStatus('API key cleared', 'info');
+                updateConsolidationStatus();
             }
         }
 
@@ -753,10 +999,11 @@
             try {
                 showStatus('Analyzing with GPT-3.5...', 'info');
                 
-                // Prepare symptom list for GPT
                 const symptomList = anxietyDatabase.map((item, index) => 
                     `${index}: ${item.symptom}`
                 ).join('\n');
+
+                const numMatches = settings.numMatches || 3;
 
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
                     method: 'POST',
@@ -769,16 +1016,20 @@
                         messages: [
                             {
                                 role: 'system',
-                                content: `You are a medical symptom matcher for anxiety symptoms. Given a user's description of their symptoms, match it to the most appropriate symptom from the provided list. Be precise and consider synonyms and colloquial expressions.
+                                content: `You are a medical symptom matcher for anxiety symptoms. Given a user's description, match it to the ${numMatches} most appropriate symptoms from the list.
 
 Available symptoms:
 ${symptomList}
 
-Respond in JSON format:
+Respond in JSON format with exactly ${numMatches} matches:
 {
-    "matched_index": <number>,
-    "confidence": <0-100>,
-    "reasoning": "<brief explanation of why this match was chosen>"
+    "matches": [
+        ${Array(numMatches).fill(0).map(() => `{
+            "matched_index": <number>,
+            "confidence": <0-100>,
+            "reasoning": "<brief explanation>"
+        }`).join(',\n        ')}
+    ]
 }`
                             },
                             {
@@ -787,7 +1038,7 @@ Respond in JSON format:
                             }
                         ],
                         temperature: 0.3,
-                        max_tokens: 150
+                        max_tokens: 300
                     })
                 });
 
@@ -800,23 +1051,30 @@ Respond in JSON format:
                 const data = await response.json();
                 const content = data.choices[0].message.content;
                 
-                // Parse GPT response
                 try {
                     const result = JSON.parse(content);
-                    const matchedItem = anxietyDatabase[result.matched_index];
+                    const matches = [];
                     
-                    if (matchedItem) {
-                        return [{
-                            item: matchedItem,
-                            score: result.confidence / 100,
-                            reasoning: result.reasoning
-                        }];
+                    if (result.matches && Array.isArray(result.matches)) {
+                        result.matches.forEach(match => {
+                            const matchedItem = anxietyDatabase[match.matched_index];
+                            if (matchedItem) {
+                                matches.push({
+                                    item: matchedItem,
+                                    score: match.confidence / 100,
+                                    reasoning: match.reasoning
+                                });
+                            }
+                        });
+                    }
+                    
+                    if (matches.length > 0) {
+                        return matches;
                     }
                 } catch (parseError) {
                     console.error('Failed to parse GPT response:', parseError);
                 }
                 
-                // Fallback to keyword search if parsing fails
                 return enhancedKeywordSearch(userInput);
                 
             } catch (error) {
@@ -826,7 +1084,7 @@ Respond in JSON format:
             }
         }
 
-        // Enhanced keyword-based search
+        // Enhanced keyword search
         function enhancedKeywordSearch(userInput) {
             const userWords = userInput.toLowerCase().split(/\s+/);
             const results = [];
@@ -836,24 +1094,20 @@ Respond in JSON format:
                 const symptomWords = item.symptom.toLowerCase().split(/\s+/);
                 const allKeywords = item.keywords.map(k => k.toLowerCase());
                 
-                // Check for exact keyword matches
                 userWords.forEach(userWord => {
-                    // Check in symptom
                     if (symptomWords.some(sw => sw.includes(userWord) || userWord.includes(sw))) {
                         score += 2;
                     }
                     
-                    // Check in keywords - higher weight for exact matches
                     allKeywords.forEach(kw => {
                         if (kw === userWord) {
-                            score += 5; // Exact match
+                            score += 5;
                         } else if (kw.includes(userWord) || userWord.includes(kw)) {
-                            score += 3; // Partial match
+                            score += 3;
                         }
                     });
                 });
                 
-                // Check for phrase matches
                 const userLower = userInput.toLowerCase();
                 item.keywords.forEach(keyword => {
                     if (userLower.includes(keyword.toLowerCase())) {
@@ -864,16 +1118,16 @@ Respond in JSON format:
                 if (score > 0) {
                     results.push({
                         item: item,
-                        score: score / Math.max(userWords.length * 3, 1) // Normalize score
+                        score: score / Math.max(userWords.length * 3, 1)
                     });
                 }
             });
             
             results.sort((a, b) => b.score - a.score);
-            return results;
+            return results.slice(0, settings.numMatches || 3);
         }
 
-        // Basic search (original method)
+        // Basic search
         function basicSearch(userInput) {
             const results = [];
             
@@ -888,10 +1142,10 @@ Respond in JSON format:
             });
             
             results.sort((a, b) => b.score - a.score);
-            return results;
+            return results.slice(0, settings.numMatches || 3);
         }
 
-        // Calculate similarity between two strings
+        // Calculate similarity
         function calculateSimilarity(str1, str2) {
             const words1 = str1.toLowerCase().split(/\s+/);
             const words2 = str2.toLowerCase().split(/\s+/);
@@ -908,7 +1162,7 @@ Respond in JSON format:
             return matches / Math.max(words1.length, words2.length);
         }
 
-        // Process symptoms with selected search method
+        // Process symptoms
         async function processSymptoms(userInput) {
             const searchMethod = document.querySelector('input[name="searchMethod"]:checked').value;
             let results = [];
@@ -927,27 +1181,96 @@ Respond in JSON format:
                     break;
             }
             
-            if (results.length > 0 && results[0].score > 0.1) {
-                displayResult(results[0], userInput);
-                saveToHistory(userInput, results[0]);
-                speakPrevention(results[0].item.prevention);
+            const minConfidence = (settings.minConfidence || 30) / 100;
+            const significantMatches = results.filter(r => r.score >= minConfidence);
+            
+            console.log(`Found ${significantMatches.length} significant matches`);
+            
+            if (significantMatches.length > 0) {
+                let combinedMatch = {
+                    item: {
+                        symptom: '',
+                        prevention: '',
+                        nlpConflict: ''
+                    },
+                    score: 0,
+                    reasoning: '',
+                    isMultiple: significantMatches.length > 1,
+                    wasConsolidated: false
+                };
+                
+                combinedMatch.item.symptom = significantMatches.map(m => m.item.symptom).join(' / ');
+                combinedMatch.item.nlpConflict = significantMatches.map(m => m.item.nlpConflict).join(' and ');
+                
+                // CONSOLIDATION LOGIC HERE
+                if (searchMethod === 'gpt' && significantMatches.length > 1 && settings.consolidatePreventions && apiKey) {
+                    console.log('Attempting AI consolidation...');
+                    const consolidationResult = await consolidatePreventions(significantMatches, userInput);
+                    combinedMatch.item.prevention = consolidationResult.text;
+                    combinedMatch.wasConsolidated = consolidationResult.isConsolidated;
+                    console.log('Consolidation result:', consolidationResult.isConsolidated);
+                } else {
+                    combinedMatch.item.prevention = significantMatches.map(m => m.item.prevention)
+                        .join(' Alternatively, ');
+                    combinedMatch.wasConsolidated = false;
+                }
+                
+                const reasonings = significantMatches
+                    .filter(m => m.reasoning)
+                    .map((m, i) => `Match ${i+1}: ${m.reasoning}`);
+                if (reasonings.length > 0) {
+                    combinedMatch.reasoning = reasonings.join(' ');
+                }
+                
+                combinedMatch.score = significantMatches.reduce((sum, m) => sum + m.score, 0) / significantMatches.length;
+                combinedMatch.matches = significantMatches;
+                
+                displayResult(combinedMatch, userInput);
+                saveToHistory(userInput, combinedMatch);
+                speakPrevention(combinedMatch.item.prevention);
             } else {
                 showStatus('No matching symptoms found. Try describing your symptoms differently.', 'error');
                 document.getElementById('resultSection').style.display = 'none';
             }
         }
 
-        // Display results with confidence score
+        // Display results
         function displayResult(match, userInput) {
+            console.log('Displaying result. Was consolidated:', match.wasConsolidated);
             document.getElementById('resultSection').style.display = 'block';
-            document.getElementById('matchedSymptom').textContent = match.item.symptom;
             
-            // Convert score to percentage
+            const isMultiple = match.isMultiple || match.item.symptom.includes(' / ');
+            const indicator = document.getElementById('matchIndicator');
+            
+            if (match.wasConsolidated === true) {
+                indicator.innerHTML = '🤖 AI-Consolidated Response';
+                indicator.style.display = 'inline-block';
+                indicator.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            } else if (isMultiple && match.matches) {
+                indicator.textContent = `${match.matches.length} Matches Found`;
+                indicator.style.display = 'inline-block';
+                indicator.style.background = '#667eea';
+            } else {
+                indicator.style.display = 'none';
+            }
+            
+            if (match.matches && match.matches.length > 1) {
+                const symptomHtml = match.matches.map((m, i) => {
+                    const confidence = Math.round(m.score * 100);
+                    const label = i === 0 ? 'Primary' : `Match ${i + 1}`;
+                    return `<div style="margin: 5px 0;">
+                        <strong style="color: #667eea;">${label} (${confidence}%):</strong> ${m.item.symptom}
+                    </div>`;
+                }).join('');
+                document.getElementById('matchedSymptom').innerHTML = symptomHtml;
+            } else {
+                document.getElementById('matchedSymptom').textContent = match.item.symptom;
+            }
+            
             const confidence = Math.min(Math.round(match.score * 100), 100);
             document.getElementById('confidenceScore').textContent = confidence + '%';
             document.getElementById('confidenceFill').style.width = confidence + '%';
             
-            // Show AI reasoning if available (from GPT)
             if (match.reasoning) {
                 document.getElementById('aiReasoning').style.display = 'block';
                 document.getElementById('reasoningText').textContent = match.reasoning;
@@ -955,16 +1278,212 @@ Respond in JSON format:
                 document.getElementById('aiReasoning').style.display = 'none';
             }
             
-            document.getElementById('nlpConflict').textContent = match.item.nlpConflict;
-            document.getElementById('preventionText').textContent = match.item.prevention;
+            document.getElementById('nlpConflict').innerHTML = match.item.nlpConflict;
             
-            showStatus('Match found! Reading prevention technique...', 'success');
+            const preventionDiv = document.getElementById('preventionText');
+            
+            if (match.wasConsolidated === true) {
+                console.log('Showing AI-consolidated prevention');
+                preventionDiv.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #f0f4ff, #fff); padding: 20px; border-radius: 8px; border-left: 4px solid #667eea;">
+                        <div style="font-size: 12px; color: #667eea; margin-bottom: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                            🤖 AI-PERSONALIZED PREVENTION PLAN
+                        </div>
+                        <div style="color: #333; line-height: 1.8;">
+                            ${match.item.prevention.split('\n\n')
+                                .map(p => `<p style="margin: 12px 0;">${p.trim()}</p>`)
+                                .join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                preventionDiv.innerHTML = `<div style="padding: 10px;">
+                    ${match.item.prevention
+                        .replace(/Alternatively,/g, '<br><br><strong style="color: #667eea;">Alternatively:</strong>')
+                        .replace(/Practice/g, '<strong>Practice</strong>')
+                        .replace(/Consider/g, '<strong>Consider</strong>')
+                        .replace(/Use/g, '<strong>Use</strong>')}
+                </div>`;
+            }
+            
+            showStatus(match.wasConsolidated ? 
+                '🎉 AI created a personalized prevention plan!' : 
+                'Match found! Reading prevention technique...', 'success');
         }
 
-        // Check and request permissions
+        // Test consolidation
+        async function testConsolidation() {
+            console.log('=== TEST CONSOLIDATION ===');
+            
+            if (!apiKey) {
+                alert('Please add your OpenAI API key first!');
+                return;
+            }
+            
+            settings.consolidatePreventions = true;
+            document.getElementById('consolidatePreventions').checked = true;
+            saveSettings();
+            
+            document.querySelector('input[value="gpt"]').checked = true;
+            
+            if (settings.numMatches < 2) {
+                settings.numMatches = 3;
+                document.getElementById('numMatches').value = 3;
+                saveSettings();
+            }
+            
+            const testInput = "I feel breathless, my heart is racing, and I feel panicky";
+            document.getElementById('transcript').innerHTML = 
+                `<p><strong>Test Input:</strong> ${testInput}</p>`;
+            
+            console.log('Processing test input...');
+            await processSymptoms(testInput);
+        }
+
+        // Save to history
+        function saveToHistory(userInput, match) {
+            let history = JSON.parse(localStorage.getItem('anxietyHistory') || '[]');
+            
+            const confidence = Math.min(Math.round(match.score * 100), 100);
+            const entry = {
+                date: new Date().toISOString(),
+                userInput: userInput,
+                matchedSymptom: match.item.symptom,
+                prevention: match.item.prevention,
+                nlpConflict: match.item.nlpConflict,
+                confidence: confidence,
+                searchMethod: document.querySelector('input[name="searchMethod"]:checked').value,
+                reasoning: match.reasoning || null,
+                numMatches: match.matches ? match.matches.length : 1,
+                consolidated: match.wasConsolidated || false
+            };
+            
+            history.unshift(entry);
+            if (history.length > 50) history = history.slice(0, 50);
+            
+            localStorage.setItem('anxietyHistory', JSON.stringify(history));
+            loadHistory();
+        }
+
+        // Load history
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('anxietyHistory') || '[]');
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="color: #999;">No history yet. Start by recording your symptoms.</p>';
+                return;
+            }
+            
+            historyList.innerHTML = history.map(entry => {
+                const date = new Date(entry.date);
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                
+                const consolidationBadge = entry.consolidated ? 
+                    '<span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 2px 6px; border-radius: 10px; font-size: 11px; margin-left: 5px;">🤖 AI Consolidated</span>' : '';
+                
+                return `
+                    <div class="history-item">
+                        <div class="date">${dateStr} ${consolidationBadge}</div>
+                        <div class="symptom">Your input: ${entry.userInput}</div>
+                        <div class="symptom">Matched: ${entry.matchedSymptom}</div>
+                        <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                            Confidence: ${entry.confidence || 'N/A'}% | 
+                            Method: ${entry.searchMethod || 'basic'} | 
+                            Matches: ${entry.numMatches || 1}
+                        </div>
+                        <div style="color: #666; font-size: 13px; margin-top: 3px;">
+                            NLP Conflict: ${entry.nlpConflict}
+                        </div>
+                        ${entry.reasoning ? `<div style="color: #555; font-size: 13px; margin-top: 5px; font-style: italic;">
+                            AI Reasoning: ${entry.reasoning}
+                        </div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Clear history
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all history?')) {
+                localStorage.removeItem('anxietyHistory');
+                loadHistory();
+                showStatus('History cleared', 'success');
+            }
+        }
+
+        // Export/Import history
+        function exportHistory() {
+            const history = localStorage.getItem('anxietyHistory') || '[]';
+            const blob = new Blob([history], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'anxiety_history_' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus('History exported', 'success');
+        }
+
+        function importHistory() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        localStorage.setItem('anxietyHistory', JSON.stringify(data));
+                        loadHistory();
+                        showStatus('History imported successfully', 'success');
+                    } catch (error) {
+                        showStatus('Invalid history file', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Load database
+        function loadDatabase() {
+            const tbody = document.getElementById('databaseBody');
+            tbody.innerHTML = anxietyDatabase.map(item => `
+                <tr>
+                    <td>${item.symptom}</td>
+                    <td>${item.prevention}</td>
+                    <td>${item.nlpConflict}</td>
+                    <td><button class="speak-btn" onclick="speakPrevention('${item.prevention.replace(/'/g, "\\'")}')">🔊 Speak</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // Switch tabs
+        function switchTab(event, tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.className = `status-message ${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Speech recognition functions
         async function checkPermissions() {
             try {
-                // Check if browser supports speech recognition
                 if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
                     showStatus('Your browser does not support speech recognition. Please use Chrome or Edge.', 'error');
                     document.getElementById('permissionCard').style.display = 'block';
@@ -972,7 +1491,6 @@ Respond in JSON format:
                     return false;
                 }
 
-                // Test speech synthesis
                 if (!('speechSynthesis' in window)) {
                     showStatus('Text-to-speech not supported in your browser', 'error');
                     return false;
@@ -985,26 +1503,13 @@ Respond in JSON format:
             }
         }
 
-        function showPermissionInstructions() {
-            document.getElementById('permissionCard').style.display = 'block';
-            document.getElementById('status').textContent = 'Please enable permissions';
-            showStatus('Please enable microphone access to use voice input', 'info');
-        }
-
         async function requestPermissions() {
             try {
-                // Request microphone access
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // Stop the stream immediately
                 stream.getTracks().forEach(track => track.stop());
                 
-                // Initialize speech recognition
                 initSpeechRecognition();
-                
-                // Hide permission card
                 document.getElementById('permissionCard').style.display = 'none';
-                
                 hasPermissions = true;
                 document.getElementById('status').textContent = 'Click microphone to start';
                 showStatus('Permissions granted! You can now use voice input.', 'success');
@@ -1019,7 +1524,6 @@ Respond in JSON format:
             }
         }
 
-        // Initialize speech recognition
         function initSpeechRecognition() {
             try {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1051,7 +1555,6 @@ Respond in JSON format:
                         }
                     }
                     
-                    // Show live transcription
                     if (interimTranscript) {
                         document.getElementById('transcript').innerHTML = 
                             `<p><strong>Listening:</strong> ${interimTranscript}</p>`;
@@ -1069,7 +1572,7 @@ Respond in JSON format:
                     stopRecording();
                     
                     if (event.error === 'not-allowed') {
-                        showPermissionInstructions();
+                        document.getElementById('permissionCard').style.display = 'block';
                     } else if (event.error === 'no-speech') {
                         showStatus('No speech detected. Please try again.', 'error');
                     } else {
@@ -1120,14 +1623,11 @@ Respond in JSON format:
             document.getElementById('status').textContent = 'Click microphone to start';
         }
 
-        // Text to speech
         function speakPrevention(text) {
-            // Cancel any ongoing speech
             if (synthesis.speaking) {
                 synthesis.cancel();
             }
             
-            // Small delay to ensure cancellation completes
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.rate = 0.9;
@@ -1143,149 +1643,19 @@ Respond in JSON format:
             }, 100);
         }
 
-        // Save to history with confidence score
-        function saveToHistory(userInput, match) {
-            let history = JSON.parse(localStorage.getItem('anxietyHistory') || '[]');
-            
-            const confidence = Math.min(Math.round(match.score * 100), 100);
-            const entry = {
-                date: new Date().toISOString(),
-                userInput: userInput,
-                matchedSymptom: match.item.symptom,
-                prevention: match.item.prevention,
-                nlpConflict: match.item.nlpConflict,
-                confidence: confidence,
-                searchMethod: document.querySelector('input[name="searchMethod"]:checked').value,
-                reasoning: match.reasoning || null
-            };
-            
-            history.unshift(entry);
-            if (history.length > 50) history = history.slice(0, 50);
-            
-            localStorage.setItem('anxietyHistory', JSON.stringify(history));
-            loadHistory();
-        }
-
-        // Load history
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('anxietyHistory') || '[]');
-            const historyList = document.getElementById('historyList');
-            
-            if (history.length === 0) {
-                historyList.innerHTML = '<p style="color: #999;">No history yet. Start by recording your symptoms.</p>';
-                return;
-            }
-            
-            historyList.innerHTML = history.map(entry => {
-                const date = new Date(entry.date);
-                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-                
-                return `
-                    <div class="history-item">
-                        <div class="date">${dateStr}</div>
-                        <div class="symptom">Your input: ${entry.userInput}</div>
-                        <div class="symptom">Matched: ${entry.matchedSymptom}</div>
-                        <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                            Confidence: ${entry.confidence || 'N/A'}% | 
-                            Method: ${entry.searchMethod || 'basic'} | 
-                            NLP Conflict: ${entry.nlpConflict}
-                        </div>
-                        ${entry.reasoning ? `<div style="color: #555; font-size: 13px; margin-top: 5px; font-style: italic;">
-                            AI Reasoning: ${entry.reasoning}
-                        </div>` : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Clear history
-        function clearHistory() {
-            if (confirm('Are you sure you want to clear all history?')) {
-                localStorage.removeItem('anxietyHistory');
-                loadHistory();
-                showStatus('History cleared', 'success');
-            }
-        }
-
-        // Export history
-        function exportHistory() {
-            const history = localStorage.getItem('anxietyHistory') || '[]';
-            const blob = new Blob([history], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'anxiety_history_' + new Date().toISOString().split('T')[0] + '.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            showStatus('History exported', 'success');
-        }
-
-        // Import history
-        function importHistory() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    try {
-                        const data = JSON.parse(event.target.result);
-                        localStorage.setItem('anxietyHistory', JSON.stringify(data));
-                        loadHistory();
-                        showStatus('History imported successfully', 'success');
-                    } catch (error) {
-                        showStatus('Invalid history file', 'error');
-                    }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
-        }
-
-        // Load database table
-        function loadDatabase() {
-            const tbody = document.getElementById('databaseBody');
-            tbody.innerHTML = anxietyDatabase.map(item => `
-                <tr>
-                    <td>${item.symptom}</td>
-                    <td>${item.prevention}</td>
-                    <td>${item.nlpConflict}</td>
-                    <td><button class="speak-btn" onclick="speakPrevention('${item.prevention.replace(/'/g, "\\'")}')">🔊 Speak</button></td>
-                </tr>
-            `).join('');
-        }
-
-        // Switch tabs
-        function switchTab(event, tabName) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-        }
-
-        // Show status message
-        function showStatus(message, type) {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.className = `status-message ${type}`;
-            statusDiv.textContent = message;
-            statusDiv.style.display = 'block';
-            
-            setTimeout(() => {
-                statusDiv.style.display = 'none';
-            }, 5000);
-        }
-
         // Initialize app
         window.onload = async function() {
+            console.log('🚀 Anxiety Helper with AI Consolidation');
+            console.log('✅ consolidatePreventions function exists');
+            console.log('📝 To test: Add API key, then click "Test AI Consolidation"');
+            
+            loadSettings();
             loadApiKey();
             loadHistory();
             loadDatabase();
             
             const canUseSpeech = await checkPermissions();
             if (canUseSpeech) {
-                // Try to initialize automatically if possible
                 initSpeechRecognition();
             } else {
                 document.getElementById('permissionCard').style.display = 'block';
