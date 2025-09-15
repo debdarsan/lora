@@ -22,6 +22,8 @@
             --background: #FAFAFA;
             --surface: #FFFFFF;
             --error: #CF6679;
+            --warning: #FF9800;
+            --success: #4CAF50;
             --on-primary: #FFFFFF;
             --on-surface: #000000;
             --on-background: #000000;
@@ -73,6 +75,72 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 24px;
+        }
+
+        /* Disclaimer and Crisis Resources */
+        .disclaimer-card {
+            background: #FFF3E0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--warning);
+            box-shadow: var(--shadow-1);
+        }
+
+        .disclaimer-card h4 {
+            color: #E65100;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .disclaimer-card p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: rgba(0,0,0,0.87);
+        }
+
+        .crisis-card {
+            background: #FFEBEE;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--error);
+            box-shadow: var(--shadow-1);
+        }
+
+        .crisis-card h4 {
+            color: #C62828;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .crisis-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .crisis-card li {
+            margin: 8px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .crisis-card a {
+            color: #C62828;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .crisis-card a:hover {
+            text-decoration: underline;
         }
 
         .tab-container {
@@ -294,6 +362,39 @@
             border-color: var(--primary);
         }
 
+        /* Severity Slider */
+        .severity-section {
+            margin: 24px 0;
+            padding: 16px;
+            background: #F5F5F5;
+            border-radius: 8px;
+        }
+
+        .severity-section h4 {
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .severity-slider {
+            width: 100%;
+            margin: 16px 0;
+        }
+
+        .severity-value {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 8px 0;
+        }
+
+        .severity-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: rgba(0,0,0,0.54);
+        }
+
         .transcript {
             margin: 24px 0;
             padding: 16px;
@@ -301,6 +402,31 @@
             border-radius: 8px;
             min-height: 64px;
             border-left: 4px solid var(--primary);
+        }
+
+        /* Follow-up Section */
+        .followup-card {
+            background: #E8F5E9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 24px 0;
+            border-left: 4px solid var(--success);
+            box-shadow: var(--shadow-1);
+            display: none;
+        }
+
+        .followup-card h4 {
+            color: #2E7D32;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .followup-card p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: rgba(0,0,0,0.87);
         }
 
         .result-card {
@@ -326,6 +452,11 @@
         .chip-success {
             background: var(--secondary);
             color: var(--on-surface);
+        }
+
+        .chip-warning {
+            background: var(--warning);
+            color: var(--on-primary);
         }
 
         .progress-bar {
@@ -376,6 +507,32 @@
             box-shadow: var(--shadow-2);
         }
 
+        .severity-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .severity-low { background: #C8E6C9; color: #2E7D32; }
+        .severity-medium { background: #FFF3E0; color: #EF6C00; }
+        .severity-high { background: #FFCDD2; color: #C62828; }
+
+        /* Rate Limit Warning */
+        .rate-limit-warning {
+            background: #FFF3E0;
+            color: #E65100;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 12px 0;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
         .status-bar {
             position: fixed;
             bottom: 24px;
@@ -407,6 +564,11 @@
 
         .status-info {
             background: var(--primary);
+            color: var(--on-primary);
+        }
+
+        .status-warning {
+            background: var(--warning);
             color: var(--on-primary);
         }
 
@@ -513,6 +675,10 @@
                 padding: 12px 16px;
                 font-size: 12px;
             }
+
+            .crisis-card {
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -526,6 +692,29 @@
     </div>
 
     <div class="container">
+        <!-- Disclaimer -->
+        <div class="disclaimer-card">
+            <h4>
+                <i class="material-icons">warning</i>
+                Important Disclaimer
+            </h4>
+            <p>This tool is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or qualified mental health provider with any questions you may have regarding your condition.</p>
+        </div>
+
+        <!-- Crisis Resources -->
+        <div class="crisis-card">
+            <h4>
+                <i class="material-icons">emergency</i>
+                Crisis Resources
+            </h4>
+            <ul>
+                <li><strong>National Suicide Prevention Lifeline:</strong> <a href="tel:988">988</a> or <a href="tel:1-800-273-8255">1-800-273-8255</a></li>
+                <li><strong>Crisis Text Line:</strong> Text HOME to <a href="sms:741741">741741</a></li>
+                <li><strong>International Crisis Lines:</strong> <a href="https://findahelpline.com" target="_blank">findahelpline.com</a></li>
+                <li><strong>Emergency:</strong> Call 911 or your local emergency number</li>
+            </ul>
+        </div>
+
         <div class="tab-container">
             <div class="tabs">
                 <button class="tab active" onclick="switchTab(event, 'voice')">
@@ -566,6 +755,11 @@
                     </button>
                 </div>
 
+                <div id="rateLimitWarning" class="rate-limit-warning">
+                    <i class="material-icons">schedule</i>
+                    <span>Rate limit active. Please wait <span id="rateLimitSeconds">2</span> seconds before making another request.</span>
+                </div>
+
                 <button class="fab" id="micButton" onclick="startRecording()">
                     <i class="material-icons" id="micIcon">mic</i>
                 </button>
@@ -574,6 +768,27 @@
 
                 <div class="transcript" id="transcript">
                     <p style="color: rgba(0,0,0,0.54);">Your spoken symptoms will appear here...</p>
+                </div>
+
+                <!-- Severity Slider -->
+                <div class="severity-section">
+                    <h4>How severe are your symptoms? (1-10)</h4>
+                    <input type="range" class="severity-slider" id="severitySlider" min="1" max="10" value="5" oninput="updateSeverity()">
+                    <div class="severity-value" id="severityValue">5</div>
+                    <div class="severity-labels">
+                        <span>Mild</span>
+                        <span>Moderate</span>
+                        <span>Severe</span>
+                    </div>
+                </div>
+
+                <!-- Follow-up Card -->
+                <div id="followupCard" class="followup-card">
+                    <h4>
+                        <i class="material-icons">chat</i>
+                        Let's clarify
+                    </h4>
+                    <p id="followupText"></p>
                 </div>
 
                 <div id="resultSection" class="result-card" style="display: none;">
@@ -594,6 +809,11 @@
                         <div class="progress-bar">
                             <div class="progress-fill" id="confidenceFill"></div>
                         </div>
+                    </div>
+
+                    <div style="margin: 16px 0;">
+                        <strong>Severity Level:</strong>
+                        <span id="severityBadge" class="severity-badge"></span>
                     </div>
                     
                     <div id="aiReasoning" style="display: none; margin: 16px 0; padding: 12px; background: #F5F5F5; border-radius: 4px; border-left: 3px solid var(--primary);">
@@ -677,6 +897,9 @@
                     <p style="font-size: 12px; color: rgba(0,0,0,0.54); margin-top: 16px;">
                         Get your API key from: <a href="https://platform.openai.com/api-keys" target="_blank" style="color: var(--primary);">OpenAI Platform</a>
                     </p>
+                    <p style="font-size: 12px; color: rgba(0,0,0,0.54); margin-top: 8px;">
+                        Model: gpt-3.5-turbo-0125 (Optimized for cost and speed)
+                    </p>
                 </div>
 
                 <div class="card">
@@ -750,6 +973,17 @@
                         <li>✓ No data is stored on any external server</li>
                         <li>✓ All processing happens on your device</li>
                     </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="material-icons">info</i>
+                        About
+                    </div>
+                    <p style="color: rgba(0,0,0,0.67); line-height: 1.6;">
+                        Version 2.1 - Enhanced with improved AI matching, severity tracking, follow-up questions, rate limiting, and crisis resources.<br><br>
+                        This tool uses GPT-3.5-turbo-0125 to provide intelligent symptom matching and personalized support for anxiety management.
+                    </p>
                 </div>
             </div>
         </div>
@@ -857,11 +1091,44 @@
         let synthesis = window.speechSynthesis;
         let hasPermissions = false;
         let apiKey = '';
+        let lastAPICall = 0;
+        const API_COOLDOWN = 2000; // 2 seconds
         let settings = {
             numMatches: 3,
             minConfidence: 30,
             consolidatePreventions: true
         };
+
+        // Update severity display
+        function updateSeverity() {
+            const value = document.getElementById('severitySlider').value;
+            document.getElementById('severityValue').textContent = value;
+        }
+
+        // Get severity label
+        function getSeverityLabel(value) {
+            if (value <= 3) return { text: 'Mild', class: 'severity-low' };
+            if (value <= 7) return { text: 'Moderate', class: 'severity-medium' };
+            return { text: 'Severe', class: 'severity-high' };
+        }
+
+        // Rate limiting function
+        function checkRateLimit() {
+            const now = Date.now();
+            if (now - lastAPICall < API_COOLDOWN) {
+                const remainingTime = Math.ceil((API_COOLDOWN - (now - lastAPICall)) / 1000);
+                document.getElementById('rateLimitSeconds').textContent = remainingTime;
+                document.getElementById('rateLimitWarning').style.display = 'flex';
+                
+                setTimeout(() => {
+                    document.getElementById('rateLimitWarning').style.display = 'none';
+                }, remainingTime * 1000);
+                
+                return false;
+            }
+            lastAPICall = now;
+            return true;
+        }
 
         // Consolidate preventions using GPT
         async function consolidatePreventions(matches, userInput) {
@@ -888,7 +1155,7 @@
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'gpt-3.5-turbo',
+                        model: 'gpt-3.5-turbo-0125',
                         messages: [
                             {
                                 role: 'system',
@@ -930,7 +1197,11 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                     };
                 } else {
                     const error = await response.json();
-                    console.error('GPT consolidation failed:', error);
+                    if (error.error?.type === 'insufficient_quota') {
+                        showStatus('API quota exceeded. Using standard response.', 'error');
+                    } else if (error.error?.type === 'invalid_api_key') {
+                        showStatus('Invalid API key. Please check your settings.', 'error');
+                    }
                     return {
                         text: matches.map(m => m.item.prevention).join(' Alternatively, '),
                         isConsolidated: false
@@ -1041,6 +1312,11 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                 return;
             }
 
+            if (!checkRateLimit()) {
+                showStatus('Please wait before testing again', 'warning');
+                return;
+            }
+
             showStatus('Testing API connection...', 'info');
             
             try {
@@ -1051,7 +1327,7 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'gpt-3.5-turbo',
+                        model: 'gpt-3.5-turbo-0125',
                         messages: [
                             {role: 'system', content: 'Reply with OK'},
                             {role: 'user', content: 'Test'}
@@ -1064,7 +1340,13 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                     showStatus('API connection successful!', 'success');
                 } else {
                     const error = await response.json();
-                    showStatus(`API error: ${error.error?.message || 'Unknown error'}`, 'error');
+                    if (error.error?.type === 'insufficient_quota') {
+                        showStatus('API quota exceeded. Please check your OpenAI account.', 'error');
+                    } else if (error.error?.type === 'invalid_api_key') {
+                        showStatus('Invalid API key. Please check and try again.', 'error');
+                    } else {
+                        showStatus(`API error: ${error.error?.message || 'Unknown error'}`, 'error');
+                    }
                 }
             } catch (error) {
                 showStatus('Failed to connect to OpenAI API', 'error');
@@ -1085,11 +1367,15 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
             }
         }
 
-        // GPT-based symptom matching
+        // GPT-based symptom matching with follow-up support
         async function gptSymptomMatch(userInput) {
             if (!apiKey) {
                 showStatus('Please configure your OpenAI API key in Settings', 'error');
                 document.getElementById('resultSection').style.display = 'none';
+                return [];
+            }
+
+            if (!checkRateLimit()) {
                 return [];
             }
 
@@ -1109,16 +1395,18 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'gpt-3.5-turbo',
+                        model: 'gpt-3.5-turbo-0125',
                         messages: [
                             {
                                 role: 'system',
                                 content: `You are a medical symptom matcher for anxiety symptoms. Given a user's description, match it to the ${numMatches} most appropriate symptoms from the list.
 
+If the description is too vague or doesn't clearly match any symptoms (all confidence scores < 30%), respond with a follow-up question:
+
 Available symptoms:
 ${symptomList}
 
-Respond in JSON format with exactly ${numMatches} matches:
+For clear matches, respond with exactly ${numMatches} matches:
 {
     "matches": [
         ${Array(numMatches).fill(0).map(() => `{
@@ -1127,6 +1415,12 @@ Respond in JSON format with exactly ${numMatches} matches:
             "reasoning": "<brief explanation>"
         }`).join(',\n        ')}
     ]
+}
+
+For unclear/vague descriptions, respond with:
+{
+    "followup": "Hi there! I'd like to help you better. Could you describe your symptoms in more detail? For example, are you experiencing physical sensations, emotional feelings, or specific thoughts?",
+    "matches": []
 }`
                             },
                             {
@@ -1135,13 +1429,19 @@ Respond in JSON format with exactly ${numMatches} matches:
                             }
                         ],
                         temperature: 0.3,
-                        max_tokens: 300
+                        max_tokens: 400
                     })
                 });
 
                 if (!response.ok) {
                     const error = await response.json();
-                    showStatus(`API error: ${error.error?.message || 'Unknown error'}`, 'error');
+                    if (error.error?.type === 'insufficient_quota') {
+                        showStatus('API quota exceeded. Please check your OpenAI account.', 'error');
+                    } else if (error.error?.type === 'invalid_api_key') {
+                        showStatus('Invalid API key. Please check your settings.', 'error');
+                    } else {
+                        showStatus(`API error: ${error.error?.message || 'Unknown error'}`, 'error');
+                    }
                     return [];
                 }
 
@@ -1150,6 +1450,16 @@ Respond in JSON format with exactly ${numMatches} matches:
                 
                 try {
                     const result = JSON.parse(content);
+                    
+                    // Handle follow-up question
+                    if (result.followup && (!result.matches || result.matches.length === 0)) {
+                        document.getElementById('followupCard').style.display = 'block';
+                        document.getElementById('followupText').textContent = result.followup;
+                        document.getElementById('resultSection').style.display = 'none';
+                        speakPrevention(result.followup);
+                        return [];
+                    }
+                    
                     const matches = [];
                     
                     if (result.matches && Array.isArray(result.matches)) {
@@ -1187,6 +1497,7 @@ Respond in JSON format with exactly ${numMatches} matches:
             }
             
             showStatus('Processing your symptoms...', 'info');
+            document.getElementById('followupCard').style.display = 'none';
             
             const results = await gptSymptomMatch(userInput);
             
@@ -1236,13 +1547,13 @@ Respond in JSON format with exactly ${numMatches} matches:
                 displayResult(combinedMatch, userInput);
                 saveToHistory(userInput, combinedMatch);
                 speakPrevention(combinedMatch.item.prevention);
-            } else {
+            } else if (results.length === 0 && document.getElementById('followupCard').style.display !== 'block') {
                 showStatus('No matching symptoms found. Please try describing your symptoms differently.', 'error');
                 document.getElementById('resultSection').style.display = 'none';
             }
         }
 
-        // Display results
+        // Display results with severity
         function displayResult(match, userInput) {
             document.getElementById('resultSection').style.display = 'block';
             
@@ -1275,6 +1586,13 @@ Respond in JSON format with exactly ${numMatches} matches:
             const confidence = Math.min(Math.round(match.score * 100), 100);
             document.getElementById('confidenceScore').textContent = confidence + '%';
             document.getElementById('confidenceFill').style.width = confidence + '%';
+            
+            // Display severity
+            const severityValue = document.getElementById('severitySlider').value;
+            const severity = getSeverityLabel(severityValue);
+            const severityBadge = document.getElementById('severityBadge');
+            severityBadge.textContent = `${severity.text} (${severityValue}/10)`;
+            severityBadge.className = `severity-badge ${severity.class}`;
             
             if (match.reasoning) {
                 document.getElementById('aiReasoning').style.display = 'block';
@@ -1316,9 +1634,12 @@ Respond in JSON format with exactly ${numMatches} matches:
                 'Analysis complete! Prevention techniques ready.', 'success');
         }
 
-        // Save to history
+        // Save to history with severity
         function saveToHistory(userInput, match) {
             let history = JSON.parse(localStorage.getItem('anxietyHistory') || '[]');
+            
+            const severityValue = document.getElementById('severitySlider').value;
+            const severity = getSeverityLabel(severityValue);
             
             const entry = {
                 date: new Date().toISOString(),
@@ -1328,7 +1649,11 @@ Respond in JSON format with exactly ${numMatches} matches:
                 nlpConflict: match.item.nlpConflict,
                 confidence: Math.round(match.score * 100),
                 numMatches: match.matches ? match.matches.length : 1,
-                consolidated: match.wasConsolidated || false
+                consolidated: match.wasConsolidated || false,
+                severity: {
+                    value: severityValue,
+                    label: severity.text
+                }
             };
             
             history.unshift(entry);
@@ -1338,7 +1663,7 @@ Respond in JSON format with exactly ${numMatches} matches:
             loadHistory();
         }
 
-        // Load history
+        // Load history with severity display
         function loadHistory() {
             const history = JSON.parse(localStorage.getItem('anxietyHistory') || '[]');
             const historyList = document.getElementById('historyList');
@@ -1358,6 +1683,10 @@ Respond in JSON format with exactly ${numMatches} matches:
                 const date = new Date(entry.date);
                 const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
                 
+                const severityClass = entry.severity ? 
+                    (entry.severity.value <= 3 ? 'severity-low' : 
+                     entry.severity.value <= 7 ? 'severity-medium' : 'severity-high') : '';
+                
                 return `
                     <div class="history-item">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -1373,6 +1702,7 @@ Respond in JSON format with exactly ${numMatches} matches:
                         <div style="margin: 8px 0; display: flex; gap: 8px; flex-wrap: wrap;">
                             <span class="chip">${entry.confidence}% confidence</span>
                             <span class="chip">${entry.numMatches} match${entry.numMatches > 1 ? 'es' : ''}</span>
+                            ${entry.severity ? `<span class="severity-badge ${severityClass}">${entry.severity.label} (${entry.severity.value}/10)</span>` : ''}
                         </div>
                     </div>
                 `;
@@ -1625,7 +1955,7 @@ Respond in JSON format with exactly ${numMatches} matches:
 
         // Initialize app
         window.onload = async function() {
-            console.log('Anxiety Helper initialized');
+            console.log('Anxiety Helper v2.1 initialized');
             
             loadSettings();
             loadApiKey();
