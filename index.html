@@ -1,14 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Anxiety Helper - AI-Powered</title>
     
+    <!-- Material Design Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --primary: #6200EA;
+            --primary-dark: #3700B3;
+            --primary-light: #BB86FC;
+            --secondary: #03DAC6;
+            --secondary-dark: #018786;
+            --background: #FAFAFA;
+            --surface: #FFFFFF;
+            --error: #CF6679;
+            --on-primary: #FFFFFF;
+            --on-surface: #000000;
+            --on-background: #000000;
+            --shadow-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+            --shadow-3: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+            --shadow-4: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,67 +38,97 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Roboto', sans-serif;
+            background: var(--background);
             min-height: 100vh;
-            padding: 10px;
+            color: var(--on-background);
+        }
+
+        .app-bar {
+            background: var(--primary);
+            color: var(--on-primary);
+            padding: 16px 24px;
+            box-shadow: var(--shadow-2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-bar h1 {
+            font-size: 24px;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .app-bar p {
+            font-size: 14px;
+            opacity: 0.87;
+            margin-top: 4px;
+            margin-left: 36px;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 24px;
+        }
+
+        .tab-container {
+            background: var(--surface);
+            border-radius: 8px;
+            box-shadow: var(--shadow-1);
             overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
+            margin-bottom: 24px;
         }
 
         .tabs {
             display: flex;
-            background: #f5f5f5;
-            border-bottom: 2px solid #e0e0e0;
+            background: var(--primary);
+            box-shadow: var(--shadow-1);
         }
 
         .tab {
             flex: 1;
-            padding: 15px;
+            padding: 16px 24px;
             text-align: center;
             cursor: pointer;
             background: transparent;
             border: none;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 500;
-            color: #666;
+            color: var(--on-primary);
+            opacity: 0.7;
             transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1.25px;
+            position: relative;
+        }
+
+        .tab:hover {
+            opacity: 0.9;
         }
 
         .tab.active {
-            background: white;
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
+            opacity: 1;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--secondary);
         }
 
         .tab-content {
             display: none;
-            padding: 20px;
+            padding: 24px;
             animation: fadeIn 0.3s;
+            min-height: 500px;
         }
 
         .tab-content.active {
@@ -84,554 +136,626 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .api-setup {
-            background: #e3f2fd;
-            border: 2px solid #2196f3;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 15px 0;
+        .card {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-1);
         }
 
-        .api-setup h4 {
-            color: #1565c0;
-            margin-bottom: 15px;
-        }
-
-        .api-setup input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #2196f3;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-size: 14px;
-        }
-
-        .api-setup button {
-            background: #2196f3;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-
-        .api-setup button:hover {
-            background: #1976d2;
-        }
-
-        .api-status {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-
-        .api-status.connected {
-            background: #4caf50;
-            color: white;
-        }
-
-        .api-status.disconnected {
-            background: #f44336;
-            color: white;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .permission-card {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 15px 0;
-            text-align: center;
-        }
-
-        .permission-card h4 {
-            color: #856404;
-            margin-bottom: 15px;
-        }
-
-        .permission-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
+        .card-title {
+            font-size: 20px;
             font-weight: 500;
-            margin: 10px;
-            transition: all 0.3s;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .permission-btn:hover {
-            background: #218838;
-            transform: scale(1.05);
+        .material-icons {
+            font-size: 24px;
         }
 
-        .voice-section {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .mic-button {
+        .fab {
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary);
             border: none;
-            color: white;
-            font-size: 50px;
+            color: var(--on-primary);
+            font-size: 48px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: var(--shadow-3);
             transition: all 0.3s;
-            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 32px auto;
         }
 
-        .mic-button:hover {
+        .fab:hover {
             transform: scale(1.05);
+            box-shadow: var(--shadow-4);
         }
 
-        .mic-button.listening {
+        .fab.listening {
             animation: pulse 1.5s infinite;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: var(--secondary-dark);
         }
 
-        .mic-button:disabled {
+        .fab:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(245, 87, 108, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(3, 218, 198, 0.7); }
+            70% { box-shadow: 0 0 0 30px rgba(3, 218, 198, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(3, 218, 198, 0); }
+        }
+
+        .btn {
+            background: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.25px;
+            cursor: pointer;
+            box-shadow: var(--shadow-1);
+            transition: all 0.3s;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            box-shadow: var(--shadow-2);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--on-surface);
+        }
+
+        .btn-text {
+            background: transparent;
+            color: var(--primary);
+            box-shadow: none;
+        }
+
+        .btn-text:hover {
+            background: rgba(98, 0, 234, 0.08);
+            box-shadow: none;
+        }
+
+        .btn-danger {
+            background: var(--error);
+        }
+
+        .text-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            transition: all 0.3s;
+            background: var(--surface);
+            margin: 8px 0;
+        }
+
+        .text-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin: 16px 0;
+            cursor: pointer;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .select-field {
+            padding: 12px 16px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            background: var(--surface);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 8px 0;
+        }
+
+        .select-field:focus {
+            outline: none;
+            border-color: var(--primary);
         }
 
         .transcript {
-            margin: 20px 0;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 10px;
-            min-height: 60px;
-            text-align: left;
+            margin: 24px 0;
+            padding: 16px;
+            background: #F5F5F5;
+            border-radius: 8px;
+            min-height: 64px;
+            border-left: 4px solid var(--primary);
         }
 
         .result-card {
-            background: #f0f4ff;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border-left: 4px solid #667eea;
-        }
-
-        .result-card h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-
-        .result-card p {
-            margin: 10px 0;
-            line-height: 1.6;
-        }
-
-        .result-card .label {
-            font-weight: 600;
-            color: #333;
-            display: inline-block;
-            margin-right: 5px;
-            min-width: 150px;
-        }
-
-        .ai-reasoning {
-            background: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            border-left: 3px solid #2196f3;
-            font-style: italic;
-            color: #555;
-        }
-
-        .match-indicator {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-left: 10px;
-            font-weight: normal;
-        }
-
-        .confidence-meter {
-            margin: 10px 0;
-            background: #e0e0e0;
-            border-radius: 10px;
-            height: 20px;
-            overflow: hidden;
-        }
-
-        .confidence-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff4444, #ffaa00, #44ff44);
-            transition: width 0.5s ease;
-        }
-
-        .prevention-section {
-            background: white;
-            padding: 15px;
+            background: var(--surface);
             border-radius: 8px;
-            margin-top: 10px;
-            line-height: 1.8;
+            padding: 24px;
+            margin: 24px 0;
+            box-shadow: var(--shadow-2);
+            border-left: 4px solid var(--primary);
         }
 
-        .prevention-section p {
+        .chip {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--primary-light);
+            color: var(--on-primary);
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            margin: 4px;
+        }
+
+        .chip-success {
+            background: var(--secondary);
+            color: var(--on-surface);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #E0E0E0;
+            border-radius: 4px;
+            overflow: hidden;
             margin: 12px 0;
         }
 
-        .history-item {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--error), #FFC107, var(--secondary));
+            transition: width 0.5s ease;
         }
 
-        .history-item .date {
-            color: #999;
+        .prevention-box {
+            background: linear-gradient(135deg, #F3E5F5, #FFFFFF);
+            padding: 24px;
+            border-radius: 8px;
+            margin-top: 16px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .ai-badge {
+            background: var(--primary);
+            color: var(--on-primary);
+            padding: 8px 16px;
+            border-radius: 4px;
             font-size: 12px;
-            margin-bottom: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            display: inline-block;
         }
 
-        .history-item .symptom {
-            color: #667eea;
-            font-weight: 600;
-            margin: 5px 0;
+        .history-item {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            box-shadow: var(--shadow-1);
+            transition: all 0.3s;
         }
 
-        .clear-history {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
+        .history-item:hover {
+            box-shadow: var(--shadow-2);
         }
 
-        .database-table {
-            overflow-x: auto;
-            margin: 20px 0;
+        .status-bar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow-3);
+            z-index: 1000;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100%); }
+            to { transform: translateX(-50%) translateY(0); }
+        }
+
+        .status-success {
+            background: var(--secondary);
+            color: var(--on-surface);
+        }
+
+        .status-error {
+            background: var(--error);
+            color: var(--on-primary);
+        }
+
+        .status-info {
+            background: var(--primary);
+            color: var(--on-primary);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.12);
+            margin: 24px 0;
+        }
+
+        .settings-section {
+            margin-bottom: 32px;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 16px 0;
+        }
+
+        .settings-label {
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.87);
+        }
+
+        .api-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .api-status.connected {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .api-status.disconnected {
+            background: #FFEBEE;
+            color: #C62828;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            background: var(--surface);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-1);
         }
 
         th {
-            background: #667eea;
-            color: white;
-            padding: 12px;
+            background: var(--primary);
+            color: var(--on-primary);
+            padding: 16px;
             text-align: left;
-            position: sticky;
-            top: 0;
+            font-weight: 500;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         td {
-            padding: 12px;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
         }
 
         tr:hover {
-            background: #f9f9f9;
+            background: #F5F5F5;
         }
 
-        .speak-btn {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .status-message {
+        .empty-state {
             text-align: center;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-weight: 500;
+            padding: 48px 24px;
+            color: rgba(0, 0, 0, 0.54);
         }
 
-        .status-message.success {
-            background: #d4edda;
-            color: #155724;
+        .empty-state i {
+            font-size: 72px;
+            color: rgba(0, 0, 0, 0.26);
+            margin-bottom: 16px;
         }
 
-        .status-message.error {
-            background: #f8d7da;
-            color: #721c24;
+        .voice-status {
+            text-align: center;
+            margin: 16px 0;
+            color: rgba(0, 0, 0, 0.54);
+            font-size: 14px;
         }
 
-        .status-message.info {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .method-selector {
-            margin: 15px 0;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 10px;
-        }
-
-        .method-selector label {
-            display: block;
-            margin: 10px 0;
-            cursor: pointer;
-        }
-
-        .method-selector input[type="radio"] {
-            margin-right: 10px;
-        }
-
-        .settings-section {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-        }
-
-        .settings-section h4 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .debug-panel {
-            background: #1e1e1e;
-            color: #0f0;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            max-height: 300px;
-            overflow-y: auto;
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+            }
+            
+            .tab {
+                padding: 12px 16px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="app-bar">
+        <h1>
+            <i class="material-icons">psychology</i>
+            Anxiety Helper
+        </h1>
+        <p>AI-Powered Symptom Analysis & Personalized Support</p>
+    </div>
+
     <div class="container">
-        <div class="header">
-            <h1>🧠 Anxiety Helper</h1>
-            <p>AI-Powered Symptom Matching & Support</p>
-        </div>
-
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab(event, 'voice')">Voice Input</button>
-            <button class="tab" onclick="switchTab(event, 'history')">History</button>
-            <button class="tab" onclick="switchTab(event, 'database')">Database</button>
-            <button class="tab" onclick="switchTab(event, 'settings')">Settings</button>
-        </div>
-
-        <div id="voice" class="tab-content active">
-            <div id="apiSetup" class="api-setup">
-                <h4>🔑 OpenAI API Setup</h4>
-                <p style="font-size: 14px; color: #555; margin-bottom: 10px;">
-                    Enter your OpenAI API key for intelligent symptom matching. Your key is stored locally and never sent to any server except OpenAI.
-                </p>
-                <input type="password" id="apiKey" placeholder="sk-..." />
-                <div style="margin-top: 10px;">
-                    <button onclick="saveApiKey()">Save Key</button>
-                    <button onclick="testApiKey()">Test Connection</button>
-                    <button onclick="clearApiKey()">Clear Key</button>
-                    <span id="apiStatus" class="api-status disconnected">Not Connected</span>
-                </div>
-                <p style="font-size: 12px; color: #666; margin-top: 10px;">
-                    Get your API key from: <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a>
-                </p>
-            </div>
-
-            <div id="permissionCard" class="permission-card" style="display: none;">
-                <h4>📱 Enable Permissions</h4>
-                <p>This app needs microphone access to hear your symptoms and speaker access to read prevention techniques.</p>
-                <button class="permission-btn" onclick="requestPermissions()">
-                    🎤 Enable Microphone & Speaker
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab(event, 'voice')">
+                    <i class="material-icons">mic</i> Voice
                 </button>
-                <p style="margin-top: 15px; font-size: 12px; color: #666;">
-                    If prompted, please click "Allow" in your browser
-                </p>
+                <button class="tab" onclick="switchTab(event, 'history')">
+                    <i class="material-icons">history</i> History
+                </button>
+                <button class="tab" onclick="switchTab(event, 'database')">
+                    <i class="material-icons">storage</i> Database
+                </button>
+                <button class="tab" onclick="switchTab(event, 'settings')">
+                    <i class="material-icons">settings</i> Settings
+                </button>
             </div>
 
-            <div class="method-selector">
-                <h4>Search Method:</h4>
-                <label>
-                    <input type="radio" name="searchMethod" value="gpt" checked>
-                    GPT-3.5 (Most accurate, requires API key)
-                </label>
-                <label>
-                    <input type="radio" name="searchMethod" value="enhanced">
-                    Enhanced Keyword (No API needed, faster)
-                </label>
-                <label>
-                    <input type="radio" name="searchMethod" value="basic">
-                    Basic Keyword (Original method)
-                </label>
-                <div style="margin-top: 10px; padding: 10px; background: #f0f4ff; border-radius: 5px;">
-                    <button onclick="testConsolidation()" style="background: #9c27b0; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">
-                        🧪 Test AI Consolidation
+            <div id="voice" class="tab-content active">
+                <div id="apiWarning" class="card" style="background: #FFF3E0; border-left: 4px solid #FF9800; display: none;">
+                    <div class="card-title" style="color: #E65100;">
+                        <i class="material-icons">warning</i>
+                        API Key Required
+                    </div>
+                    <p style="color: rgba(0,0,0,0.87);">Please configure your OpenAI API key in Settings to use AI-powered symptom matching.</p>
+                    <button class="btn" onclick="switchTab(event, 'settings')" style="margin-top: 16px;">
+                        Go to Settings
                     </button>
-                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                        <em>Test with: "I feel breathless, heart racing, and panicky"</em>
-                    </div>
                 </div>
-            </div>
 
-            <div class="voice-section">
-                <button class="mic-button" id="micButton" onclick="startRecording()">
-                    <span id="micIcon">🎤</span>
+                <div id="permissionCard" class="card" style="background: #E3F2FD; display: none;">
+                    <div class="card-title" style="color: #1565C0;">
+                        <i class="material-icons">mic_none</i>
+                        Enable Microphone Access
+                    </div>
+                    <p>This app needs microphone access to hear your symptoms and provide personalized support.</p>
+                    <button class="btn" onclick="requestPermissions()" style="margin-top: 16px;">
+                        <i class="material-icons">check</i>
+                        Grant Access
+                    </button>
+                </div>
+
+                <button class="fab" id="micButton" onclick="startRecording()">
+                    <i class="material-icons" id="micIcon">mic</i>
                 </button>
-                <p style="margin-top: 15px; color: #666;" id="status">Click microphone to start</p>
-            </div>
+                
+                <p class="voice-status" id="status">Click the microphone to describe your symptoms</p>
 
-            <div class="transcript" id="transcript">
-                <p style="color: #999;">Your spoken symptoms will appear here...</p>
-            </div>
+                <div class="transcript" id="transcript">
+                    <p style="color: rgba(0,0,0,0.54);">Your spoken symptoms will appear here...</p>
+                </div>
 
-            <div id="resultSection" style="display: none;">
-                <div class="result-card">
-                    <h3>Analysis Results <span id="matchIndicator" class="match-indicator" style="display: none;">Combined Match</span></h3>
-                    <p><span class="label">Matched Symptom(s):</span></p>
-                    <div id="matchedSymptom" style="margin-left: 20px;"></div>
-                    <p><span class="label">Confidence Score:</span><span id="confidenceScore"></span></p>
-                    <div class="confidence-meter">
-                        <div class="confidence-fill" id="confidenceFill"></div>
+                <div id="resultSection" class="result-card" style="display: none;">
+                    <h3 style="margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <i class="material-icons" style="color: var(--primary);">analytics</i>
+                        Analysis Results
+                        <span id="matchIndicator" class="chip" style="display: none;">AI Match</span>
+                    </h3>
+                    
+                    <div style="margin: 16px 0;">
+                        <strong>Matched Symptoms:</strong>
+                        <div id="matchedSymptom" style="margin: 8px 0 16px 0;"></div>
                     </div>
-                    <div id="aiReasoning" class="ai-reasoning" style="display: none;">
-                        <strong>AI Reasoning:</strong> <span id="reasoningText"></span>
+                    
+                    <div style="margin: 16px 0;">
+                        <strong>Confidence Score:</strong>
+                        <span id="confidenceScore" style="margin-left: 8px; font-weight: 500; color: var(--primary);"></span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="confidenceFill"></div>
+                        </div>
                     </div>
-                    <p><span class="label">NLP Conflict(s):</span></p>
-                    <div id="nlpConflict" style="margin-left: 20px; font-style: italic;"></div>
-                    <p><span class="label">Prevention Technique(s):</span></p>
-                    <div id="preventionText" class="prevention-section"></div>
+                    
+                    <div id="aiReasoning" style="display: none; margin: 16px 0; padding: 12px; background: #F5F5F5; border-radius: 4px; border-left: 3px solid var(--primary);">
+                        <strong>AI Analysis:</strong>
+                        <p id="reasoningText" style="margin-top: 8px; color: rgba(0,0,0,0.87);"></p>
+                    </div>
+                    
+                    <div style="margin: 16px 0;">
+                        <strong>NLP Conflict Patterns:</strong>
+                        <div id="nlpConflict" style="margin: 8px 0; font-style: italic; color: rgba(0,0,0,0.67);"></div>
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <div style="margin-top: 24px;">
+                        <strong style="display: block; margin-bottom: 16px;">Prevention & Support Plan:</strong>
+                        <div id="preventionText"></div>
+                    </div>
                 </div>
             </div>
 
-            <div id="statusMessage"></div>
-
-            <div id="debugPanel" class="debug-panel" style="display: none;">
-                <div style="color: #fff; margin-bottom: 10px;">
-                    <strong>🐛 DEBUG CONSOLE</strong>
+            <div id="history" class="tab-content">
+                <div class="card">
+                    <div class="card-title">
+                        <i class="material-icons">history</i>
+                        Your History
+                    </div>
+                    <div id="historyList"></div>
+                    <button class="btn btn-danger" onclick="clearHistory()" style="margin-top: 16px;">
+                        <i class="material-icons">delete</i>
+                        Clear All History
+                    </button>
                 </div>
-                <div id="debugContent"></div>
             </div>
-        </div>
 
-        <div id="history" class="tab-content">
-            <h3 style="margin-bottom: 15px;">Your History</h3>
-            <div id="historyList"></div>
-            <button class="clear-history" onclick="clearHistory()">Clear All History</button>
-        </div>
-
-        <div id="database" class="tab-content">
-            <h3 style="margin-bottom: 15px;">Symptom Database</h3>
-            <div class="database-table">
-                <table id="databaseTable">
-                    <thead>
-                        <tr>
-                            <th>Symptom</th>
-                            <th>Prevention</th>
-                            <th>NLP Conflict</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="databaseBody"></tbody>
-                </table>
+            <div id="database" class="tab-content">
+                <div class="card">
+                    <div class="card-title">
+                        <i class="material-icons">storage</i>
+                        Symptom Database
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Symptom</th>
+                                    <th>Prevention</th>
+                                    <th>NLP Conflict</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="databaseBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div id="settings" class="tab-content">
-            <h3 style="margin-bottom: 15px;">Settings</h3>
-            <div class="settings-section">
-                <h4>Matching Configuration</h4>
-                <p style="margin-bottom: 10px;">
-                    <label for="numMatches">Number of symptoms to match (GPT only):</label>
-                    <select id="numMatches" onchange="saveSettings()" style="padding: 5px; margin-left: 10px;">
-                        <option value="1">1 symptom</option>
-                        <option value="2">2 symptoms</option>
-                        <option value="3" selected>3 symptoms</option>
-                        <option value="4">4 symptoms</option>
-                        <option value="5">5 symptoms</option>
-                    </select>
-                </p>
-                <p style="margin-bottom: 10px;">
-                    <label for="minConfidence">Minimum confidence to include match:</label>
-                    <select id="minConfidence" onchange="saveSettings()" style="padding: 5px; margin-left: 10px;">
-                        <option value="20">20%</option>
-                        <option value="30" selected>30%</option>
-                        <option value="40">40%</option>
-                        <option value="50">50%</option>
-                    </select>
-                </p>
-                <p style="margin-bottom: 10px;">
-                    <label>
+            <div id="settings" class="tab-content">
+                <div class="card">
+                    <div class="card-title">
+                        <i class="material-icons">vpn_key</i>
+                        API Configuration
+                    </div>
+                    <p style="color: rgba(0,0,0,0.67); margin-bottom: 16px;">
+                        Your OpenAI API key is required for AI-powered symptom matching and personalized prevention plans. 
+                        The key is stored locally in your browser and never sent to any server except OpenAI.
+                    </p>
+                    
+                    <input type="password" id="apiKey" class="text-field" placeholder="sk-..." />
+                    
+                    <div style="margin: 16px 0; display: flex; gap: 8px; align-items: center;">
+                        <button class="btn" onclick="saveApiKey()">Save Key</button>
+                        <button class="btn btn-secondary" onclick="testApiKey()">Test Connection</button>
+                        <button class="btn btn-text" onclick="clearApiKey()">Clear</button>
+                        <span id="apiStatus" class="api-status disconnected">
+                            <i class="material-icons" style="font-size: 16px;">cloud_off</i>
+                            Not Connected
+                        </span>
+                    </div>
+                    
+                    <p style="font-size: 12px; color: rgba(0,0,0,0.54); margin-top: 16px;">
+                        Get your API key from: <a href="https://platform.openai.com/api-keys" target="_blank" style="color: var(--primary);">OpenAI Platform</a>
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="material-icons">tune</i>
+                        Matching Configuration
+                    </div>
+                    
+                    <div class="settings-row">
+                        <span class="settings-label">Number of symptoms to match:</span>
+                        <select id="numMatches" class="select-field" onchange="saveSettings()" style="width: auto;">
+                            <option value="1">1 symptom</option>
+                            <option value="2">2 symptoms</option>
+                            <option value="3" selected>3 symptoms</option>
+                            <option value="4">4 symptoms</option>
+                            <option value="5">5 symptoms</option>
+                        </select>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <span class="settings-label">Minimum confidence threshold:</span>
+                        <select id="minConfidence" class="select-field" onchange="saveSettings()" style="width: auto;">
+                            <option value="20">20%</option>
+                            <option value="30" selected>30%</option>
+                            <option value="40">40%</option>
+                            <option value="50">50%</option>
+                        </select>
+                    </div>
+                    
+                    <div class="checkbox-container">
                         <input type="checkbox" id="consolidatePreventions" checked onchange="saveSettings()">
-                        🤖 Use AI to create consolidated, empathetic prevention advice
-                    </label>
-                </p>
-                <div id="consolidationStatus" style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 13px;">
-                    <strong>AI Consolidation:</strong> 
-                    <span id="consolidationText">Enabled - Will create personalized responses for multiple matches</span>
+                        <label for="consolidatePreventions">
+                            Use AI to create personalized, empathetic prevention plans
+                        </label>
+                    </div>
+                    
+                    <div id="consolidationStatus" style="padding: 12px; border-radius: 4px; margin-top: 16px; background: #E8F5E9;">
+                        <span id="consolidationText" style="color: #2E7D32; font-size: 14px;">
+                            <i class="material-icons" style="font-size: 16px; vertical-align: middle;">check_circle</i>
+                            AI consolidation enabled
+                        </span>
+                    </div>
                 </div>
-            </div>
-            <div class="settings-section">
-                <h4>API Configuration</h4>
-                <p>Current API Key: <span id="currentKeyStatus">Not set</span></p>
-                <p id="apiWarning" style="color: #ff6b6b; font-size: 13px; margin-top: 5px; display: none;">
-                    ⚠️ API key required for GPT matching and AI consolidation
-                </p>
-                <button onclick="exportHistory()">Export History</button>
-                <button onclick="importHistory()">Import History</button>
-            </div>
-            <div class="settings-section">
-                <h4>Privacy</h4>
-                <p style="font-size: 14px; color: #666;">
-                    • Your API key is stored locally in your browser<br>
-                    • Voice data is processed by your browser's speech recognition<br>
-                    • OpenAI API calls are made directly from your browser<br>
-                    • No data is stored on any external server<br>
-                    • AI consolidation requires GPT mode and multiple matches
-                </p>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="material-icons">import_export</i>
+                        Data Management
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="exportHistory()">
+                            <i class="material-icons">download</i>
+                            Export History
+                        </button>
+                        <button class="btn btn-text" onclick="importHistory()">
+                            <i class="material-icons">upload</i>
+                            Import History
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="material-icons">privacy_tip</i>
+                        Privacy & Security
+                    </div>
+                    <ul style="color: rgba(0,0,0,0.67); line-height: 1.8; list-style: none; padding: 0;">
+                        <li>✓ Your API key is stored locally in your browser</li>
+                        <li>✓ Voice data is processed by your browser's speech recognition</li>
+                        <li>✓ OpenAI API calls are made directly from your browser</li>
+                        <li>✓ No data is stored on any external server</li>
+                        <li>✓ All processing happens on your device</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
+
+    <div id="statusMessage" style="display: none;"></div>
 
     <script>
         // Comprehensive anxiety symptom database
@@ -739,15 +863,11 @@
             consolidatePreventions: true
         };
 
-        // NEW FUNCTION: Consolidate preventions using GPT
+        // Consolidate preventions using GPT
         async function consolidatePreventions(matches, userInput) {
-            console.log('=== consolidatePreventions FUNCTION CALLED ===');
-            console.log('Matches:', matches.length);
-            console.log('API Key:', !!apiKey);
-            console.log('Settings consolidate:', settings.consolidatePreventions);
+            console.log('consolidatePreventions called with', matches.length, 'matches');
             
             if (!apiKey || !settings.consolidatePreventions) {
-                console.log('Skipping consolidation - no key or disabled');
                 return {
                     text: matches.map(m => m.item.prevention).join(' Alternatively, '),
                     isConsolidated: false
@@ -755,8 +875,7 @@
             }
 
             try {
-                console.log('Making GPT API call for consolidation...');
-                showStatus('🤖 Creating personalized prevention plan with AI...', 'info');
+                showStatus('Creating personalized prevention plan...', 'info');
                 
                 const preventions = matches.map((m, i) => 
                     `Symptom ${i+1}: ${m.item.symptom}\nPrevention: ${m.item.prevention}`
@@ -804,8 +923,7 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('✅ GPT consolidation successful!');
-                    showStatus('✨ AI prevention plan created successfully!', 'success');
+                    console.log('AI consolidation successful');
                     return {
                         text: data.choices[0].message.content,
                         isConsolidated: true
@@ -813,7 +931,6 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                 } else {
                     const error = await response.json();
                     console.error('GPT consolidation failed:', error);
-                    showStatus('AI consolidation failed, using standard format', 'error');
                     return {
                         text: matches.map(m => m.item.prevention).join(' Alternatively, '),
                         isConsolidated: false
@@ -822,7 +939,6 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                 
             } catch (error) {
                 console.error('Consolidation error:', error);
-                showStatus('AI consolidation error, using standard format', 'error');
                 return {
                     text: matches.map(m => m.item.prevention).join(' Alternatively, '),
                     isConsolidated: false
@@ -866,14 +982,17 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
             if (!statusDiv || !statusText) return;
             
             if (settings.consolidatePreventions && apiKey) {
-                statusDiv.style.background = '#e8f5e9';
-                statusText.innerHTML = '✅ Enabled - Will create personalized responses for multiple matches';
+                statusDiv.style.background = '#E8F5E9';
+                statusText.innerHTML = '<i class="material-icons" style="font-size: 16px; vertical-align: middle;">check_circle</i> AI consolidation enabled - Will create personalized responses';
+                statusText.style.color = '#2E7D32';
             } else if (settings.consolidatePreventions && !apiKey) {
-                statusDiv.style.background = '#fff3e0';
-                statusText.innerHTML = '⚠️ Enabled but requires API key - Add key to activate';
+                statusDiv.style.background = '#FFF3E0';
+                statusText.innerHTML = '<i class="material-icons" style="font-size: 16px; vertical-align: middle;">warning</i> AI consolidation requires API key';
+                statusText.style.color = '#E65100';
             } else {
-                statusDiv.style.background = '#f5f5f5';
-                statusText.innerHTML = '❌ Disabled - Will use standard concatenation for multiple matches';
+                statusDiv.style.background = '#FFEBEE';
+                statusText.innerHTML = '<i class="material-icons" style="font-size: 16px; vertical-align: middle;">cancel</i> AI consolidation disabled';
+                statusText.style.color = '#C62828';
             }
         }
 
@@ -884,22 +1003,17 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                 apiKey = savedKey;
                 document.getElementById('apiKey').value = maskApiKey(savedKey);
                 document.getElementById('apiStatus').className = 'api-status connected';
-                document.getElementById('apiStatus').textContent = 'Connected';
-                document.getElementById('currentKeyStatus').textContent = maskApiKey(savedKey);
-                if (document.getElementById('apiWarning')) {
-                    document.getElementById('apiWarning').style.display = 'none';
-                }
+                document.getElementById('apiStatus').innerHTML = '<i class="material-icons" style="font-size: 16px;">cloud_done</i> Connected';
+                document.getElementById('apiWarning').style.display = 'none';
             } else {
-                if (document.getElementById('apiWarning')) {
-                    document.getElementById('apiWarning').style.display = 'block';
-                }
+                document.getElementById('apiWarning').style.display = 'block';
             }
             updateConsolidationStatus();
         }
 
         // Mask API key for display
         function maskApiKey(key) {
-            if (!key) return 'Not set';
+            if (!key) return '';
             return key.substring(0, 7) + '...' + key.substring(key.length - 4);
         }
 
@@ -910,11 +1024,8 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                 apiKey = keyInput;
                 localStorage.setItem('openai_api_key', keyInput);
                 document.getElementById('apiStatus').className = 'api-status connected';
-                document.getElementById('apiStatus').textContent = 'Connected';
-                document.getElementById('currentKeyStatus').textContent = maskApiKey(keyInput);
-                if (document.getElementById('apiWarning')) {
-                    document.getElementById('apiWarning').style.display = 'none';
-                }
+                document.getElementById('apiStatus').innerHTML = '<i class="material-icons" style="font-size: 16px;">cloud_done</i> Connected';
+                document.getElementById('apiWarning').style.display = 'none';
                 showStatus('API key saved successfully!', 'success');
                 document.getElementById('apiKey').value = maskApiKey(keyInput);
                 updateConsolidationStatus();
@@ -942,34 +1053,21 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                     body: JSON.stringify({
                         model: 'gpt-3.5-turbo',
                         messages: [
-                            {
-                                role: 'system',
-                                content: 'You are a test. Reply with "OK"'
-                            },
-                            {
-                                role: 'user',
-                                content: 'Test'
-                            }
+                            {role: 'system', content: 'Reply with OK'},
+                            {role: 'user', content: 'Test'}
                         ],
-                        max_tokens: 10,
-                        temperature: 0
+                        max_tokens: 10
                     })
                 });
 
                 if (response.ok) {
                     showStatus('API connection successful!', 'success');
-                    document.getElementById('apiStatus').className = 'api-status connected';
-                    document.getElementById('apiStatus').textContent = 'Connected';
                 } else {
                     const error = await response.json();
                     showStatus(`API error: ${error.error?.message || 'Unknown error'}`, 'error');
-                    document.getElementById('apiStatus').className = 'api-status disconnected';
-                    document.getElementById('apiStatus').textContent = 'Error';
                 }
             } catch (error) {
                 showStatus('Failed to connect to OpenAI API', 'error');
-                document.getElementById('apiStatus').className = 'api-status disconnected';
-                document.getElementById('apiStatus').textContent = 'Error';
             }
         }
 
@@ -980,11 +1078,8 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
                 localStorage.removeItem('openai_api_key');
                 document.getElementById('apiKey').value = '';
                 document.getElementById('apiStatus').className = 'api-status disconnected';
-                document.getElementById('apiStatus').textContent = 'Not Connected';
-                document.getElementById('currentKeyStatus').textContent = 'Not set';
-                if (document.getElementById('apiWarning')) {
-                    document.getElementById('apiWarning').style.display = 'block';
-                }
+                document.getElementById('apiStatus').innerHTML = '<i class="material-icons" style="font-size: 16px;">cloud_off</i> Not Connected';
+                document.getElementById('apiWarning').style.display = 'block';
                 showStatus('API key cleared', 'info');
                 updateConsolidationStatus();
             }
@@ -993,12 +1088,13 @@ Please create a consolidated, empathetic prevention plan that addresses all thes
         // GPT-based symptom matching
         async function gptSymptomMatch(userInput) {
             if (!apiKey) {
-                showStatus('Please configure your OpenAI API key first', 'error');
-                return enhancedKeywordSearch(userInput);
+                showStatus('Please configure your OpenAI API key in Settings', 'error');
+                document.getElementById('resultSection').style.display = 'none';
+                return [];
             }
 
             try {
-                showStatus('Analyzing with GPT-3.5...', 'info');
+                showStatus('Analyzing your symptoms with AI...', 'info');
                 
                 const symptomList = anxietyDatabase.map((item, index) => 
                     `${index}: ${item.symptom}`
@@ -1046,7 +1142,7 @@ Respond in JSON format with exactly ${numMatches} matches:
                 if (!response.ok) {
                     const error = await response.json();
                     showStatus(`API error: ${error.error?.message || 'Unknown error'}`, 'error');
-                    return enhancedKeywordSearch(userInput);
+                    return [];
                 }
 
                 const data = await response.json();
@@ -1069,118 +1165,30 @@ Respond in JSON format with exactly ${numMatches} matches:
                         });
                     }
                     
-                    if (matches.length > 0) {
-                        return matches;
-                    }
+                    return matches;
                 } catch (parseError) {
                     console.error('Failed to parse GPT response:', parseError);
+                    return [];
                 }
-                
-                return enhancedKeywordSearch(userInput);
                 
             } catch (error) {
                 console.error('GPT matching error:', error);
-                showStatus('GPT matching failed, using keyword search', 'error');
-                return enhancedKeywordSearch(userInput);
+                showStatus('Failed to analyze symptoms. Please check your API key.', 'error');
+                return [];
             }
         }
 
-        // Enhanced keyword search
-        function enhancedKeywordSearch(userInput) {
-            const userWords = userInput.toLowerCase().split(/\s+/);
-            const results = [];
-            
-            anxietyDatabase.forEach(item => {
-                let score = 0;
-                const symptomWords = item.symptom.toLowerCase().split(/\s+/);
-                const allKeywords = item.keywords.map(k => k.toLowerCase());
-                
-                userWords.forEach(userWord => {
-                    if (symptomWords.some(sw => sw.includes(userWord) || userWord.includes(sw))) {
-                        score += 2;
-                    }
-                    
-                    allKeywords.forEach(kw => {
-                        if (kw === userWord) {
-                            score += 5;
-                        } else if (kw.includes(userWord) || userWord.includes(kw)) {
-                            score += 3;
-                        }
-                    });
-                });
-                
-                const userLower = userInput.toLowerCase();
-                item.keywords.forEach(keyword => {
-                    if (userLower.includes(keyword.toLowerCase())) {
-                        score += 4;
-                    }
-                });
-                
-                if (score > 0) {
-                    results.push({
-                        item: item,
-                        score: score / Math.max(userWords.length * 3, 1)
-                    });
-                }
-            });
-            
-            results.sort((a, b) => b.score - a.score);
-            return results.slice(0, settings.numMatches || 3);
-        }
-
-        // Basic search
-        function basicSearch(userInput) {
-            const results = [];
-            
-            anxietyDatabase.forEach(item => {
-                const score = calculateSimilarity(userInput, item.symptom);
-                if (score > 0) {
-                    results.push({
-                        item: item,
-                        score: score
-                    });
-                }
-            });
-            
-            results.sort((a, b) => b.score - a.score);
-            return results.slice(0, settings.numMatches || 3);
-        }
-
-        // Calculate similarity
-        function calculateSimilarity(str1, str2) {
-            const words1 = str1.toLowerCase().split(/\s+/);
-            const words2 = str2.toLowerCase().split(/\s+/);
-            
-            let matches = 0;
-            words1.forEach(word1 => {
-                words2.forEach(word2 => {
-                    if (word1.includes(word2) || word2.includes(word1)) {
-                        matches++;
-                    }
-                });
-            });
-            
-            return matches / Math.max(words1.length, words2.length);
-        }
-
-        // Process symptoms
+        // Process symptoms (GPT only)
         async function processSymptoms(userInput) {
-            const searchMethod = document.querySelector('input[name="searchMethod"]:checked').value;
-            let results = [];
-            
-            showStatus(`Processing with ${searchMethod} search...`, 'info');
-            
-            switch(searchMethod) {
-                case 'gpt':
-                    results = await gptSymptomMatch(userInput);
-                    break;
-                case 'enhanced':
-                    results = enhancedKeywordSearch(userInput);
-                    break;
-                case 'basic':
-                    results = basicSearch(userInput);
-                    break;
+            if (!apiKey) {
+                showStatus('Please configure your OpenAI API key in Settings', 'error');
+                document.getElementById('apiWarning').style.display = 'block';
+                return;
             }
+            
+            showStatus('Processing your symptoms...', 'info');
+            
+            const results = await gptSymptomMatch(userInput);
             
             const minConfidence = (settings.minConfidence || 30) / 100;
             const significantMatches = results.filter(r => r.score >= minConfidence);
@@ -1203,13 +1211,12 @@ Respond in JSON format with exactly ${numMatches} matches:
                 combinedMatch.item.symptom = significantMatches.map(m => m.item.symptom).join(' / ');
                 combinedMatch.item.nlpConflict = significantMatches.map(m => m.item.nlpConflict).join(' and ');
                 
-                // CONSOLIDATION LOGIC HERE
-                if (searchMethod === 'gpt' && significantMatches.length > 1 && settings.consolidatePreventions && apiKey) {
+                // AI consolidation for multiple matches
+                if (significantMatches.length > 1 && settings.consolidatePreventions) {
                     console.log('Attempting AI consolidation...');
                     const consolidationResult = await consolidatePreventions(significantMatches, userInput);
                     combinedMatch.item.prevention = consolidationResult.text;
                     combinedMatch.wasConsolidated = consolidationResult.isConsolidated;
-                    console.log('Consolidation result:', consolidationResult.isConsolidated);
                 } else {
                     combinedMatch.item.prevention = significantMatches.map(m => m.item.prevention)
                         .join(' Alternatively, ');
@@ -1230,27 +1237,24 @@ Respond in JSON format with exactly ${numMatches} matches:
                 saveToHistory(userInput, combinedMatch);
                 speakPrevention(combinedMatch.item.prevention);
             } else {
-                showStatus('No matching symptoms found. Try describing your symptoms differently.', 'error');
+                showStatus('No matching symptoms found. Please try describing your symptoms differently.', 'error');
                 document.getElementById('resultSection').style.display = 'none';
             }
         }
 
         // Display results
         function displayResult(match, userInput) {
-            console.log('Displaying result. Was consolidated:', match.wasConsolidated);
             document.getElementById('resultSection').style.display = 'block';
             
-            const isMultiple = match.isMultiple || match.item.symptom.includes(' / ');
             const indicator = document.getElementById('matchIndicator');
-            
-            if (match.wasConsolidated === true) {
-                indicator.innerHTML = '🤖 AI-Consolidated Response';
+            if (match.wasConsolidated) {
+                indicator.innerHTML = '<i class="material-icons" style="font-size: 14px;">auto_awesome</i> AI-Personalized';
+                indicator.className = 'chip chip-success';
                 indicator.style.display = 'inline-block';
-                indicator.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-            } else if (isMultiple && match.matches) {
-                indicator.textContent = `${match.matches.length} Matches Found`;
+            } else if (match.matches && match.matches.length > 1) {
+                indicator.textContent = `${match.matches.length} Matches`;
+                indicator.className = 'chip';
                 indicator.style.display = 'inline-block';
-                indicator.style.background = '#667eea';
             } else {
                 indicator.style.display = 'none';
             }
@@ -1258,14 +1262,14 @@ Respond in JSON format with exactly ${numMatches} matches:
             if (match.matches && match.matches.length > 1) {
                 const symptomHtml = match.matches.map((m, i) => {
                     const confidence = Math.round(m.score * 100);
-                    const label = i === 0 ? 'Primary' : `Match ${i + 1}`;
-                    return `<div style="margin: 5px 0;">
-                        <strong style="color: #667eea;">${label} (${confidence}%):</strong> ${m.item.symptom}
+                    return `<div style="margin: 8px 0; padding: 8px; background: #F5F5F5; border-radius: 4px;">
+                        <span class="chip" style="margin-right: 8px;">${confidence}%</span>
+                        ${m.item.symptom}
                     </div>`;
                 }).join('');
                 document.getElementById('matchedSymptom').innerHTML = symptomHtml;
             } else {
-                document.getElementById('matchedSymptom').textContent = match.item.symptom;
+                document.getElementById('matchedSymptom').innerHTML = `<div style="margin: 8px 0;">${match.item.symptom}</div>`;
             }
             
             const confidence = Math.min(Math.round(match.score * 100), 100);
@@ -1283,14 +1287,14 @@ Respond in JSON format with exactly ${numMatches} matches:
             
             const preventionDiv = document.getElementById('preventionText');
             
-            if (match.wasConsolidated === true) {
-                console.log('Showing AI-consolidated prevention');
+            if (match.wasConsolidated) {
                 preventionDiv.innerHTML = `
-                    <div style="background: linear-gradient(135deg, #f0f4ff, #fff); padding: 20px; border-radius: 8px; border-left: 4px solid #667eea;">
-                        <div style="font-size: 12px; color: #667eea; margin-bottom: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
-                            🤖 AI-PERSONALIZED PREVENTION PLAN
+                    <div class="prevention-box">
+                        <div class="ai-badge">
+                            <i class="material-icons" style="font-size: 14px; vertical-align: middle;">auto_awesome</i>
+                            AI-Personalized Prevention Plan
                         </div>
-                        <div style="color: #333; line-height: 1.8;">
+                        <div style="color: rgba(0,0,0,0.87); line-height: 1.8;">
                             ${match.item.prevention.split('\n\n')
                                 .map(p => `<p style="margin: 12px 0;">${p.trim()}</p>`)
                                 .join('')}
@@ -1298,9 +1302,9 @@ Respond in JSON format with exactly ${numMatches} matches:
                     </div>
                 `;
             } else {
-                preventionDiv.innerHTML = `<div style="padding: 10px;">
+                preventionDiv.innerHTML = `<div class="prevention-box">
                     ${match.item.prevention
-                        .replace(/Alternatively,/g, '<br><br><strong style="color: #667eea;">Alternatively:</strong>')
+                        .replace(/Alternatively,/g, '<div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.12);"><strong style="color: var(--primary);">Alternative Approach:</strong></div>')
                         .replace(/Practice/g, '<strong>Practice</strong>')
                         .replace(/Consider/g, '<strong>Consider</strong>')
                         .replace(/Use/g, '<strong>Use</strong>')}
@@ -1308,53 +1312,21 @@ Respond in JSON format with exactly ${numMatches} matches:
             }
             
             showStatus(match.wasConsolidated ? 
-                '🎉 AI created a personalized prevention plan!' : 
-                'Match found! Reading prevention technique...', 'success');
-        }
-
-        // Test consolidation
-        async function testConsolidation() {
-            console.log('=== TEST CONSOLIDATION ===');
-            
-            if (!apiKey) {
-                alert('Please add your OpenAI API key first!');
-                return;
-            }
-            
-            settings.consolidatePreventions = true;
-            document.getElementById('consolidatePreventions').checked = true;
-            saveSettings();
-            
-            document.querySelector('input[value="gpt"]').checked = true;
-            
-            if (settings.numMatches < 2) {
-                settings.numMatches = 3;
-                document.getElementById('numMatches').value = 3;
-                saveSettings();
-            }
-            
-            const testInput = "I feel breathless, my heart is racing, and I feel panicky";
-            document.getElementById('transcript').innerHTML = 
-                `<p><strong>Test Input:</strong> ${testInput}</p>`;
-            
-            console.log('Processing test input...');
-            await processSymptoms(testInput);
+                'AI created a personalized prevention plan for you!' : 
+                'Analysis complete! Prevention techniques ready.', 'success');
         }
 
         // Save to history
         function saveToHistory(userInput, match) {
             let history = JSON.parse(localStorage.getItem('anxietyHistory') || '[]');
             
-            const confidence = Math.min(Math.round(match.score * 100), 100);
             const entry = {
                 date: new Date().toISOString(),
                 userInput: userInput,
                 matchedSymptom: match.item.symptom,
                 prevention: match.item.prevention,
                 nlpConflict: match.item.nlpConflict,
-                confidence: confidence,
-                searchMethod: document.querySelector('input[name="searchMethod"]:checked').value,
-                reasoning: match.reasoning || null,
+                confidence: Math.round(match.score * 100),
                 numMatches: match.matches ? match.matches.length : 1,
                 consolidated: match.wasConsolidated || false
             };
@@ -1372,7 +1344,13 @@ Respond in JSON format with exactly ${numMatches} matches:
             const historyList = document.getElementById('historyList');
             
             if (history.length === 0) {
-                historyList.innerHTML = '<p style="color: #999;">No history yet. Start by recording your symptoms.</p>';
+                historyList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="material-icons">history</i>
+                        <p>No history yet</p>
+                        <p style="font-size: 14px;">Start by recording your symptoms using the microphone</p>
+                    </div>
+                `;
                 return;
             }
             
@@ -1380,25 +1358,22 @@ Respond in JSON format with exactly ${numMatches} matches:
                 const date = new Date(entry.date);
                 const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
                 
-                const consolidationBadge = entry.consolidated ? 
-                    '<span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 2px 6px; border-radius: 10px; font-size: 11px; margin-left: 5px;">🤖 AI Consolidated</span>' : '';
-                
                 return `
                     <div class="history-item">
-                        <div class="date">${dateStr} ${consolidationBadge}</div>
-                        <div class="symptom">Your input: ${entry.userInput}</div>
-                        <div class="symptom">Matched: ${entry.matchedSymptom}</div>
-                        <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                            Confidence: ${entry.confidence || 'N/A'}% | 
-                            Method: ${entry.searchMethod || 'basic'} | 
-                            Matches: ${entry.numMatches || 1}
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="color: rgba(0,0,0,0.54); font-size: 12px;">${dateStr}</span>
+                            ${entry.consolidated ? '<span class="chip chip-success"><i class="material-icons" style="font-size: 12px;">auto_awesome</i> AI</span>' : ''}
                         </div>
-                        <div style="color: #666; font-size: 13px; margin-top: 3px;">
-                            NLP Conflict: ${entry.nlpConflict}
+                        <div style="margin: 8px 0;">
+                            <strong>Input:</strong> ${entry.userInput}
                         </div>
-                        ${entry.reasoning ? `<div style="color: #555; font-size: 13px; margin-top: 5px; font-style: italic;">
-                            AI Reasoning: ${entry.reasoning}
-                        </div>` : ''}
+                        <div style="margin: 8px 0;">
+                            <strong>Matched:</strong> ${entry.matchedSymptom}
+                        </div>
+                        <div style="margin: 8px 0; display: flex; gap: 8px; flex-wrap: wrap;">
+                            <span class="chip">${entry.confidence}% confidence</span>
+                            <span class="chip">${entry.numMatches} match${entry.numMatches > 1 ? 'es' : ''}</span>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -1406,7 +1381,7 @@ Respond in JSON format with exactly ${numMatches} matches:
 
         // Clear history
         function clearHistory() {
-            if (confirm('Are you sure you want to clear all history?')) {
+            if (confirm('Are you sure you want to clear all history? This cannot be undone.')) {
                 localStorage.removeItem('anxietyHistory');
                 loadHistory();
                 showStatus('History cleared', 'success');
@@ -1454,9 +1429,13 @@ Respond in JSON format with exactly ${numMatches} matches:
             tbody.innerHTML = anxietyDatabase.map(item => `
                 <tr>
                     <td>${item.symptom}</td>
-                    <td>${item.prevention}</td>
-                    <td>${item.nlpConflict}</td>
-                    <td><button class="speak-btn" onclick="speakPrevention('${item.prevention.replace(/'/g, "\\'")}')">🔊 Speak</button></td>
+                    <td style="font-size: 14px;">${item.prevention}</td>
+                    <td style="font-style: italic; color: rgba(0,0,0,0.67);">${item.nlpConflict}</td>
+                    <td>
+                        <button class="btn btn-text" onclick="speakPrevention('${item.prevention.replace(/'/g, "\\'")}')">
+                            <i class="material-icons">volume_up</i>
+                        </button>
+                    </td>
                 </tr>
             `).join('');
         }
@@ -1466,20 +1445,29 @@ Respond in JSON format with exactly ${numMatches} matches:
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            event.target.classList.add('active');
+            if (event && event.target) {
+                let tab = event.target;
+                if (tab.tagName === 'I') {
+                    tab = tab.parentElement;
+                }
+                tab.classList.add('active');
+            } else {
+                document.querySelector(`.tab:nth-child(${tabName === 'voice' ? 1 : tabName === 'history' ? 2 : tabName === 'database' ? 3 : 4})`).classList.add('active');
+            }
+            
             document.getElementById(tabName).classList.add('active');
         }
 
         // Show status message
         function showStatus(message, type) {
             const statusDiv = document.getElementById('statusMessage');
-            statusDiv.className = `status-message ${type}`;
-            statusDiv.textContent = message;
+            statusDiv.className = `status-bar status-${type}`;
+            statusDiv.innerHTML = message;
             statusDiv.style.display = 'block';
             
             setTimeout(() => {
                 statusDiv.style.display = 'none';
-            }, 5000);
+            }, 4000);
         }
 
         // Speech recognition functions
@@ -1491,12 +1479,6 @@ Respond in JSON format with exactly ${numMatches} matches:
                     document.getElementById('micButton').disabled = true;
                     return false;
                 }
-
-                if (!('speechSynthesis' in window)) {
-                    showStatus('Text-to-speech not supported in your browser', 'error');
-                    return false;
-                }
-
                 return true;
             } catch (error) {
                 console.error('Permission check error:', error);
@@ -1512,16 +1494,12 @@ Respond in JSON format with exactly ${numMatches} matches:
                 initSpeechRecognition();
                 document.getElementById('permissionCard').style.display = 'none';
                 hasPermissions = true;
-                document.getElementById('status').textContent = 'Click microphone to start';
-                showStatus('Permissions granted! You can now use voice input.', 'success');
+                document.getElementById('status').textContent = 'Click the microphone to describe your symptoms';
+                showStatus('Microphone access granted!', 'success');
                 
             } catch (error) {
                 console.error('Permission error:', error);
-                if (error.name === 'NotAllowedError') {
-                    showStatus('Microphone access denied. Please enable it in your browser settings.', 'error');
-                } else {
-                    showStatus('Error accessing microphone: ' + error.message, 'error');
-                }
+                showStatus('Microphone access denied. Please enable it in your browser settings.', 'error');
             }
         }
 
@@ -1533,14 +1511,12 @@ Respond in JSON format with exactly ${numMatches} matches:
                 recognition.continuous = false;
                 recognition.interimResults = true;
                 recognition.lang = 'en-US';
-                recognition.maxAlternatives = 1;
 
                 recognition.onstart = function() {
                     isRecording = true;
                     document.getElementById('micButton').classList.add('listening');
-                    document.getElementById('micIcon').textContent = '🔴';
-                    document.getElementById('status').textContent = 'Listening... Speak now';
-                    showStatus('Listening... Describe your symptoms', 'info');
+                    document.getElementById('micIcon').textContent = 'hearing';
+                    document.getElementById('status').textContent = 'Listening... Describe your symptoms';
                 };
 
                 recognition.onresult = function(event) {
@@ -1558,12 +1534,12 @@ Respond in JSON format with exactly ${numMatches} matches:
                     
                     if (interimTranscript) {
                         document.getElementById('transcript').innerHTML = 
-                            `<p><strong>Listening:</strong> ${interimTranscript}</p>`;
+                            `<strong>Listening:</strong> ${interimTranscript}`;
                     }
                     
                     if (finalTranscript) {
                         document.getElementById('transcript').innerHTML = 
-                            `<p><strong>You said:</strong> ${finalTranscript}</p>`;
+                            `<strong>You said:</strong> ${finalTranscript}`;
                         processSymptoms(finalTranscript);
                     }
                 };
@@ -1576,8 +1552,6 @@ Respond in JSON format with exactly ${numMatches} matches:
                         document.getElementById('permissionCard').style.display = 'block';
                     } else if (event.error === 'no-speech') {
                         showStatus('No speech detected. Please try again.', 'error');
-                    } else {
-                        showStatus('Error: ' + event.error, 'error');
                     }
                 };
 
@@ -1586,7 +1560,7 @@ Respond in JSON format with exactly ${numMatches} matches:
                 };
 
                 hasPermissions = true;
-                document.getElementById('status').textContent = 'Click microphone to start';
+                document.getElementById('status').textContent = 'Click the microphone to describe your symptoms';
 
             } catch (error) {
                 console.error('Failed to initialize speech recognition:', error);
@@ -1595,6 +1569,12 @@ Respond in JSON format with exactly ${numMatches} matches:
         }
 
         async function startRecording() {
+            if (!apiKey) {
+                showStatus('Please configure your OpenAI API key in Settings first', 'error');
+                switchTab(null, 'settings');
+                return;
+            }
+            
             if (!hasPermissions) {
                 await requestPermissions();
                 return;
@@ -1620,8 +1600,8 @@ Respond in JSON format with exactly ${numMatches} matches:
         function stopRecording() {
             isRecording = false;
             document.getElementById('micButton').classList.remove('listening');
-            document.getElementById('micIcon').textContent = '🎤';
-            document.getElementById('status').textContent = 'Click microphone to start';
+            document.getElementById('micIcon').textContent = 'mic';
+            document.getElementById('status').textContent = 'Click the microphone to describe your symptoms';
         }
 
         function speakPrevention(text) {
@@ -1636,7 +1616,6 @@ Respond in JSON format with exactly ${numMatches} matches:
                 utterance.volume = 1;
                 
                 utterance.onerror = function(event) {
-                    console.error('Speech synthesis error:', event);
                     showStatus('Could not read aloud. Check your speaker settings.', 'error');
                 };
                 
@@ -1646,9 +1625,7 @@ Respond in JSON format with exactly ${numMatches} matches:
 
         // Initialize app
         window.onload = async function() {
-            console.log('🚀 Anxiety Helper with AI Consolidation');
-            console.log('✅ consolidatePreventions function exists');
-            console.log('📝 To test: Add API key, then click "Test AI Consolidation"');
+            console.log('Anxiety Helper initialized');
             
             loadSettings();
             loadApiKey();
