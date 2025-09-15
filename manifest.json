@@ -1,7 +1,7 @@
 {
   "name": "Your App Name",
   "short_name": "AppName",
-  "start_url": "/",
+  "start_url": "/lora/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
