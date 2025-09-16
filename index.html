@@ -350,36 +350,6 @@
             padding: 12px 16px;
             border: 1px solid rgba(0, 0, 0, 0.12);
             border-radius: 4px;
-            font-size: 18px;
-            font-family: 'Roboto', sans-serif;
-            background: var(--surface);
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 8px 0;
-        }field:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 1px var(--primary);
-        }
-
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            margin: 16px 0;
-            cursor: pointer;
-        }
-
-        .checkbox-container input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
-            cursor: pointer;
-        }
-
-        .select-field {
-            padding: 12px 16px;
-            border: 1px solid rgba(0, 0, 0, 0.12);
-            border-radius: 4px;
             font-size: 16px;
             font-family: 'Roboto', sans-serif;
             background: var(--surface);
@@ -723,29 +693,6 @@
     </div>
 
     <div class="container">
-        <!-- Disclaimer -->
-        <div class="disclaimer-card">
-            <h4>
-                <i class="material-icons">warning</i>
-                Important Disclaimer
-            </h4>
-            <p>This tool is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or qualified mental health provider with any questions you may have regarding your condition.</p>
-        </div>
-
-        <!-- Crisis Resources -->
-        <div class="crisis-card">
-            <h4>
-                <i class="material-icons">emergency</i>
-                Crisis Resources
-            </h4>
-            <ul>
-                <li><strong>National Suicide Prevention Lifeline:</strong> <a href="tel:988">988</a> or <a href="tel:1-800-273-8255">1-800-273-8255</a></li>
-                <li><strong>Crisis Text Line:</strong> Text HOME to <a href="sms:741741">741741</a></li>
-                <li><strong>International Crisis Lines:</strong> <a href="https://findahelpline.com" target="_blank">findahelpline.com</a></li>
-                <li><strong>Emergency:</strong> Call 911 or your local emergency number</li>
-            </ul>
-        </div>
-
         <div class="tab-container">
             <div class="tabs">
                 <button class="tab active" onclick="switchTab(event, 'voice')">
@@ -759,6 +706,9 @@
                 </button>
                 <button class="tab" onclick="switchTab(event, 'settings')">
                     <i class="material-icons">settings</i> Settings
+                </button>
+                <button class="tab" onclick="switchTab(event, 'about')">
+                    <i class="material-icons">info</i> About
                 </button>
             </div>
 
@@ -991,6 +941,31 @@
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <div id="about" class="tab-content">
+                <!-- Important Disclaimer -->
+                <div class="disclaimer-card">
+                    <h4>
+                        <i class="material-icons">warning</i>
+                        Important Disclaimer
+                    </h4>
+                    <p>This tool is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or qualified mental health provider with any questions you may have regarding your condition.</p>
+                </div>
+
+                <!-- Crisis Resources -->
+                <div class="crisis-card">
+                    <h4>
+                        <i class="material-icons">emergency</i>
+                        Crisis Resources
+                    </h4>
+                    <ul>
+                        <li><strong>National Suicide Prevention Lifeline:</strong> <a href="tel:988">988</a> or <a href="tel:1-800-273-8255">1-800-273-8255</a></li>
+                        <li><strong>Crisis Text Line:</strong> Text HOME to <a href="sms:741741">741741</a></li>
+                        <li><strong>International Crisis Lines:</strong> <a href="https://findahelpline.com" target="_blank">findahelpline.com</a></li>
+                        <li><strong>Emergency:</strong> Call 911 or your local emergency number</li>
+                    </ul>
+                </div>
 
                 <div class="card">
                     <div class="card-title">
@@ -1009,11 +984,34 @@
                 <div class="card">
                     <div class="card-title">
                         <i class="material-icons">info</i>
-                        About
+                        About This Application
                     </div>
                     <p style="color: rgba(0,0,0,0.67); line-height: 1.6;">
-                        Version 2.1 - Enhanced with improved AI matching, severity tracking, follow-up questions, rate limiting, and crisis resources.<br><br>
-                        This tool uses GPT-3.5-turbo-0125 to provide intelligent symptom matching and personalized support for anxiety management.
+                        <strong>Version 2.1</strong> - Enhanced with improved AI matching, severity tracking, follow-up questions, rate limiting, and crisis resources.<br><br>
+                        This tool uses GPT-3.5-turbo-0125 to provide intelligent symptom matching and personalized support for anxiety management. The AI analyzes your described symptoms and matches them against a comprehensive database of common anxiety manifestations, providing tailored coping strategies and prevention techniques.<br><br>
+                        <strong>Features:</strong><br>
+                        • Voice recognition for hands-free symptom description<br>
+                        • AI-powered symptom matching with confidence scoring<br>
+                        • Personalized prevention plans using GPT consolidation<br>
+                        • Severity tracking (1-10 scale)<br>
+                        • History tracking for monitoring patterns over time<br>
+                        • Complete privacy with local data storage<br>
+                        • Export/import capability for data portability
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="material-icons">help</i>
+                        How to Use
+                    </div>
+                    <p style="color: rgba(0,0,0,0.67); line-height: 1.6;">
+                        <strong>1. Set up your API key:</strong> Go to Settings and add your OpenAI API key for AI features.<br><br>
+                        <strong>2. Grant microphone access:</strong> Allow the app to use your microphone for voice input.<br><br>
+                        <strong>3. Describe your symptoms:</strong> Click the microphone button and speak naturally about what you're experiencing.<br><br>
+                        <strong>4. Adjust severity:</strong> Use the slider to indicate how severe your symptoms feel (1-10).<br><br>
+                        <strong>5. Review results:</strong> The AI will match your symptoms and provide personalized coping strategies.<br><br>
+                        <strong>6. Track progress:</strong> Your history is saved locally to help you identify patterns over time.
                     </p>
                 </div>
             </div>
@@ -1813,7 +1811,11 @@ For unclear/vague descriptions, respond with:
                 }
                 tab.classList.add('active');
             } else {
-                document.querySelector(`.tab:nth-child(${tabName === 'voice' ? 1 : tabName === 'history' ? 2 : tabName === 'database' ? 3 : 4})`).classList.add('active');
+                const tabIndex = tabName === 'voice' ? 1 : 
+                                tabName === 'history' ? 2 : 
+                                tabName === 'database' ? 3 : 
+                                tabName === 'settings' ? 4 : 5;
+                document.querySelector(`.tab:nth-child(${tabIndex})`).classList.add('active');
             }
             
             document.getElementById(tabName).classList.add('active');
