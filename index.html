@@ -687,7 +687,7 @@
     <div class="app-bar">
         <h1>
             <i class="material-icons">psychology</i>
-            Anxiety Helper
+            Serenity
         </h1>
         <p>AI-Powered Symptom Analysis & Personalized Support</p>
     </div>
@@ -695,20 +695,20 @@
     <div class="container">
         <div class="tab-container">
             <div class="tabs">
-                <button class="tab active" onclick="switchTab(event, 'voice')">
-                    <i class="material-icons">mic</i> Voice
+                <button class="tab active" onclick="switchTab(event, 'voice')" title="Voice">
+                    <i class="material-icons">mic</i>
                 </button>
-                <button class="tab" onclick="switchTab(event, 'history')">
-                    <i class="material-icons">history</i> History
+                <button class="tab" onclick="switchTab(event, 'history')" title="History">
+                    <i class="material-icons">history</i>
                 </button>
-                <button class="tab" onclick="switchTab(event, 'database')">
-                    <i class="material-icons">storage</i> Database
+                <button class="tab" onclick="switchTab(event, 'database')" title="Database">
+                    <i class="material-icons">storage</i>
                 </button>
-                <button class="tab" onclick="switchTab(event, 'settings')">
-                    <i class="material-icons">settings</i> Settings
+                <button class="tab" onclick="switchTab(event, 'settings')" title="Settings">
+                    <i class="material-icons">settings</i>
                 </button>
-                <button class="tab" onclick="switchTab(event, 'about')">
-                    <i class="material-icons">info</i> About
+                <button class="tab" onclick="switchTab(event, 'about')" title="About">
+                    <i class="material-icons">info</i>
                 </button>
             </div>
 
@@ -866,8 +866,8 @@
                     <input type="password" id="apiKey" class="text-field" placeholder="sk-..." />
                     
                     <div style="margin: 16px 0; display: flex; gap: 8px; align-items: center;">
-                        <button class="btn" onclick="saveApiKey()">Save Key</button>
-                        <button class="btn btn-secondary" onclick="testApiKey()">Test Connection</button>
+                        <button class="btn" onclick="saveApiKey()">Save</button>
+                        <button class="btn btn-secondary" onclick="testApiKey()">Test</button>
                         <button class="btn btn-text" onclick="clearApiKey()">Clear</button>
                         <span id="apiStatus" class="api-status disconnected">
                             <i class="material-icons" style="font-size: 16px;">cloud_off</i>
@@ -886,7 +886,6 @@
                 <div class="card">
                     <div class="card-title">
                         <i class="material-icons">tune</i>
-                        Matching Configuration
                     </div>
                     
                     <div class="settings-row">
@@ -933,11 +932,9 @@
                     <div style="display: flex; gap: 8px;">
                         <button class="btn btn-secondary" onclick="exportHistory()">
                             <i class="material-icons">download</i>
-                            Export History
                         </button>
                         <button class="btn btn-text" onclick="importHistory()">
                             <i class="material-icons">upload</i>
-                            Import History
                         </button>
                     </div>
                 </div>
@@ -945,16 +942,16 @@
 
             <div id="about" class="tab-content">
                 <!-- Important Disclaimer -->
-                <div class="disclaimer-card">
+                <div class="disclaimer-card" style="background: white;">
                     <h4>
                         <i class="material-icons">warning</i>
                         Important Disclaimer
                     </h4>
-                    <p>This tool is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or qualified mental health provider with any questions you may have regarding your condition.</p>
+                    <p>This tool is for informational purposes only. Not a substitute for professional medical advice or treatment.</p>
                 </div>
 
                 <!-- Crisis Resources -->
-                <div class="crisis-card">
+                <div class="crisis-card" style="background: white;">
                     <h4>
                         <i class="material-icons">emergency</i>
                         Crisis Resources
@@ -984,7 +981,7 @@
                 <div class="card">
                     <div class="card-title">
                         <i class="material-icons">info</i>
-                        About This Application
+                        About
                     </div>
                     <p style="color: rgba(0,0,0,0.67); line-height: 1.6;">
                         <strong>Version 2.1</strong> - Enhanced with improved AI matching, severity tracking, follow-up questions, rate limiting, and crisis resources.<br><br>
